@@ -1,0 +1,64 @@
+{
+    "name": "MixedReality.Toolkit.Input",
+    "rootNamespace": "MixedReality.Toolkit.Input",
+    "references": [
+        "glTFast",
+        "Microsoft.MixedReality.OpenXR",
+        "MixedReality.Toolkit.Core",
+        "Unity.InputSystem",
+        "Unity.XR.CoreUtils",
+        "Unity.XR.Hands",
+        "Unity.XR.Interaction.Toolkit",
+        "Unity.XR.Management"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.microsoft.mixedreality.openxr",
+            "expression": "",
+            "define": "MROPENXR_PRESENT"
+        },
+        {
+            "name": "com.microsoft.mixedreality.openxr",
+            "expression": "1.5",
+            "define": "MROPENXR_ANIM_PRESENT"
+        },
+        {
+            "name": "com.atteneder.gltfast",
+            "expression": "",
+            "define": "GLTFAST_PRESENT"
+        },
+        {
+            "name": "com.atteneder.ktx",
+            "expression": "",
+            "define": "KTX_PRESENT"
+        },
+        {
+            "name": "com.unity.xr.management",
+            "expression": "4.2",
+            "define": "UNITYXR_MANAGEMENT_PRESENT"
+        },
+        {
+            "name": "Unity",
+            "expression": "[2021.3.11,2022.1)",
+            "define": "HAS_SET_LOCAL_POSITION_AND_ROTATION"
+        },
+        {
+            "name": "Unity",
+            "expression": "[2022.1.19,2022.2)",
+            "define": "HAS_SET_LOCAL_POSITION_AND_ROTATION"
+        },
+        {
+            "name": "Unity",
+            "expression": "2022.2",
+            "define": "HAS_SET_LOCAL_POSITION_AND_ROTATION"
+        }
+    ],
+    "noEngineReferences": false
+}

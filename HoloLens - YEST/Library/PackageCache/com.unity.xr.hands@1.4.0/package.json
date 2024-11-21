@@ -1,0 +1,48 @@
+{
+  "name": "com.unity.xr.hands",
+  "displayName": "XR Hands",
+  "version": "1.4.0",
+  "unity": "2021.3",
+  "description": "Surfaces the cross-platform subsystem API for hand-tracking. Implementations of providers will be found in the package for that platform.",
+  "keywords": [
+    "xr",
+    "vr",
+    "virtual",
+    "reality",
+    "hand",
+    "tracking",
+    "hands",
+    "subsystem"
+  ],
+  "dependencies": {
+    "com.unity.inputsystem": "1.3.0",
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.xr.core-utils": "2.2.0",
+    "com.unity.xr.management": "4.0.1",
+    "com.unity.mathematics": "1.2.6"
+  },
+  "_upm": {
+    "changelog": "### Changed\n- Changed gesture detection to allow both upper and lower threshold for more finely-tuned configuration of the finger shapes.\n- Added partial-grab gesture detection to the Gestures sample.\n- Changed hand and gesture tracking debug UI to support upper threshold, lower theshold, and partial-grab gesture.\n- Updated visuals for hand and gesture tracking debug UI in the Gestures sample.\n\n### Fixed\n- Fixed compilation errors on tvOS platform where `ENABLE_VR` is not defined."
+  },
+  "upmCi": {
+    "footprint": "971fef9b0772f85cf4b8958c94b66ced74a75a93"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.hands@1.4/manual/index.html",
+  "repository": {
+    "url": "https://github.cds.internal.unity3d.com/unity/com.unity.xr.hands.git",
+    "type": "git",
+    "revision": "fe5bc832bb00abf0d2351243f0d628d63ed9f045"
+  },
+  "samples": [
+    {
+      "displayName": "Gestures",
+      "description": "Sample showing how to detect and debug hand gestures.",
+      "path": "Samples~/Gestures"
+    },
+    {
+      "displayName": "HandVisualizer",
+      "description": "Basic sample showing how visualize hands.",
+      "path": "Samples~/HandVisualizer"
+    }
+  ]
+}

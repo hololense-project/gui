@@ -1,0 +1,33 @@
+{
+  "name": "org.mixedrealitytoolkit.uxcore",
+  "version": "4.0.0-pre.1",
+  "description": "Core interaction and visualization scripts for building MR UI components. Intended to be consumed when building UX libraries. For pre-existing library of components see the UX Components package.",
+  "displayName": "MRTK UX Core Scripts",
+  "msftFeatureCategory": "MRTK3",
+  "author": "Mixed Reality Toolkit Contributors",
+  "license": "BSD 3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MixedRealityToolkit/MixedRealityToolkit-Unity.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MixedRealityToolkit/MixedRealityToolkit-Unity/issues"
+  },
+  "unity": "2021.3",
+  "unityRelease": "26f1",
+  "documentationUrl": "https://www.mixedrealitytoolkit.org",
+  "dependencies": {
+    "com.microsoft.mrtk.graphicstools.unity": "0.5.12",
+    "org.mixedrealitytoolkit.core": "4.0.0",
+    "com.unity.inputsystem": "1.6.1",
+    "com.unity.textmeshpro": "3.0.6",
+    "com.unity.xr.interaction.toolkit": "3.0.3"
+  },
+  "msftOptionalPackages": {
+    "org.mixedrealitytoolkit.data": "1.0.0-development",
+    "org.mixedrealitytoolkit.spatialmanipulation": "4.0.0"
+  },
+  "msftTestDependencies": {
+    "org.mixedrealitytoolkit.input": "4.0.0"
+  }
+}
