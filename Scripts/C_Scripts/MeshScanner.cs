@@ -107,44 +107,56 @@ public class MeshScanner : MonoBehaviour
     }
 
     // Example method to get triangles (you need to implement this based on your mesh data)
-    private List<int> GetScannedTriangles()
+    private List<string> GetScannedTriangles()
     {
-        if (currentTarget == null) return new List<int>();
+        if (currentTarget == null) return new List<string>();
 
         MeshFilter meshFilter = currentTarget.GetComponent<MeshFilter>();
-        if (meshFilter == null) return new List<int>();
-    
+        if (meshFilter == null) return new List<string>();
+
         Mesh mesh = meshFilter.sharedMesh;
         Vector3[] vertices = mesh.vertices;
-        int[] triangles = mesh.triangles;
+        int[] indices = mesh.triangles;
 
         Transform meshTransform = meshFilter.transform;
-        HashSet<int> scannedIndices = new HashSet<int>();
+        HashSet<Vector3> transformedScannedVertices = new HashSet<Vector3>();
 
-        // Map scanned vertices to indices in the mesh
-        for (int i = 0; i < vertices.Length; i++)
+        // Check null for scannedVertices
+        if (scannedVertices == null) return new List<string>();
+
+        // Transform and store unique scanned vertices
+        foreach (var vertex in vertices)
         {
-            Vector3 worldVertex = meshTransform.TransformPoint(vertices[i]);
+            Vector3 worldVertex = meshTransform.TransformPoint(vertex);
             if (scannedVertices.Contains(worldVertex))
             {
-                scannedIndices.Add(i);
+                transformedScannedVertices.Add(worldVertex);
             }
         }
 
-        // Add all triangles containing scanned indices
-        List<int> scannedTriangles = new List<int>();
-        for (int i = 0; i < triangles.Length; i += 3)
+        // Convert unique vertices to a list
+        List<Vector3> vertexList = new List<Vector3>(transformedScannedVertices);
+        List<string> result = new List<string>();
+
+        // Add vertices to the result list in "v x y z" format
+        foreach (Vector3 vertex in vertexList)
         {
-            if (scannedIndices.Contains(triangles[i]) ||
-                scannedIndices.Contains(triangles[i + 1]) ||
-                scannedIndices.Contains(triangles[i + 2]))
+            result.Add($"v {vertex.X} {vertex.Y} {vertex.Z}");
+        }
+
+        // Define triangles using vertex positions
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            Vector3 v0 = meshTransform.TransformPoint(vertices[indices[i]]);
+            Vector3 v1 = meshTransform.TransformPoint(vertices[indices[i + 1]]);
+            Vector3 v2 = meshTransform.TransformPoint(vertices[indices[i + 2]]);
+
+            if (transformedScannedVertices.Contains(v0) && transformedScannedVertices.Contains(v1) && transformedScannedVertices.Contains(v2))
             {
-                scannedTriangles.Add(triangles[i]);
-                scannedTriangles.Add(triangles[i + 1]);
-                scannedTriangles.Add(triangles[i + 2]);
+                result.Add($"f {v0.X} {v0.Y} {v0.Z} {v1.X} {v1.Y} {v1.Z} {v2.X} {v2.Y} {v2.Z}");
             }
         }
 
-        return scannedTriangles;
+        return result;
     }
 }
