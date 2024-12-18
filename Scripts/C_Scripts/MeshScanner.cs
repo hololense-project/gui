@@ -109,7 +109,42 @@ public class MeshScanner : MonoBehaviour
     // Example method to get triangles (you need to implement this based on your mesh data)
     private List<int> GetScannedTriangles()
     {
-        // Implement logic to get triangles from the scanned mesh
-        return new List<int>();
+        if (currentTarget == null) return new List<int>();
+
+        MeshFilter meshFilter = currentTarget.GetComponent<MeshFilter>();
+        if (meshFilter == null) return new List<int>();
+    
+        Mesh mesh = meshFilter.sharedMesh;
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+
+        Transform meshTransform = meshFilter.transform;
+        HashSet<int> scannedIndices = new HashSet<int>();
+
+        // Map scanned vertices to indices in the mesh
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 worldVertex = meshTransform.TransformPoint(vertices[i]);
+            if (scannedVertices.Contains(worldVertex))
+            {
+                scannedIndices.Add(i);
+            }
+        }
+
+        // Add all triangles containing scanned indices
+        List<int> scannedTriangles = new List<int>();
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            if (scannedIndices.Contains(triangles[i]) ||
+                scannedIndices.Contains(triangles[i + 1]) ||
+                scannedIndices.Contains(triangles[i + 2]))
+            {
+                scannedTriangles.Add(triangles[i]);
+                scannedTriangles.Add(triangles[i + 1]);
+                scannedTriangles.Add(triangles[i + 2]);
+            }
+        }
+
+        return scannedTriangles;
     }
 }
