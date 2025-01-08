@@ -1,7 +1,6 @@
-using UnityEngine;
-using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
-using System.Collections.Generic;
+using Microsoft.MixedReality.Toolkit;
+using UnityEngine;
 
 public class MeshManager : MonoBehaviour
 {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class QueueProcessor : MonoBehaviour 
+public class QueueProcessor : MonoBehaviour
 {
     private Queue<MeshFilter> meshQueue = new Queue<MeshFilter>();
     private bool isProcessing = false;
@@ -23,10 +23,12 @@ public class QueueProcessor : MonoBehaviour
             string filePath = Application.persistentDataPath + $"/mesh_{meshFilter.GetInstanceID()}.obj";
             string compressedPath = filePath + ".gz";
 
-            await MeshExporter.ExportMeshToObjAsync(meshFilter, filePath);
+            List<Vector3> vertices = new List<Vector3>(meshFilter.sharedMesh.vertices);
+            List<int> triangles = new List<int>(meshFilter.sharedMesh.triangles);
+            MeshExporter meshExporter = new MeshExporter();
+            await meshExporter.ExportMeshToObjAsync(vertices, triangles, filePath);
             await Compressor.CompressFileAsync(filePath, compressedPath);
 
-            // Przesyłanie pliku
             Uploader uploader = gameObject.AddComponent<Uploader>();
             StartCoroutine(uploader.UploadFileAsync(compressedPath));
         }
