@@ -34,6 +34,9 @@ public class WristMenuController : MonoBehaviour
     private bool isScanning = true;       // Domyślnie skanowanie jest aktywne
     private bool isMenuVisible = true;    // Menu jest widoczne od startu
 
+    private MeshScanner meshScanner;
+
+
     private void Start()
     {
         // (1) Ustaw skalę menu — tak, aby było odpowiednio duże/małe na ręce.
@@ -142,6 +145,8 @@ public class WristMenuController : MonoBehaviour
                 Debug.Log("WristMenuController: Automatyczny zapis co " + autoExportInterval + "s.");
                 SetFeedbackText("Automatyczny zapis co " + autoExportInterval + " sekund.");
                 // Tutaj można wywołać np. SaveDataToFile();
+                meshScanner.ExportScannedMesh();
+                
             }
         }
     }

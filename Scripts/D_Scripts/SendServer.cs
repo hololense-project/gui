@@ -1,34 +1,45 @@
-using System;
-using System.Text;
 using UnityEngine;
 
 public class SendServer : MonoBehaviour
 {
-    WebRTCClient _client;
+    public WebRTCClient _client;
+    public CloseServer closeServer;
 
     void Start()
     {
-        string peerId = Guid.NewGuid().ToString();
+        string peerId = "hololense";
 
-        // Inicjalizacja WebRTCClient
         _client = new WebRTCClientBuilder()
-            .SetServer("localhost")
+            .SetServer("192.168.0.177")
             .SetPort(8765)
-            .SetSessionId("ecb8b8d7-9587-41a7-aaf9-ecd0d2d51108")
+            .SetSessionId("S1")
             .SetPeerId(peerId)
             .SetChannel("scan-channel")
             .Build();
 
         _client.InitClient();
+
+        if (closeServer != null)
+        {
+            closeServer.SetClient(_client);
+        }
+        else
+        {
+            Debug.LogError("CloseServer reference is not set in SendServer.");
+        }
     }
 
     public void Send(string message)
     {
         if (_client != null)
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
             _client.Send(data);
-            Debug.Log("Wys³ano wiadomoœæ: " + message);
+            Debug.Log("Message sent: " + message);
+        }
+        else
+        {
+            Debug.LogError("WebRTCClient is not initialized.");
         }
     }
 }

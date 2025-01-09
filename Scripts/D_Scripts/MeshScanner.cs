@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class MeshScanner : MonoBehaviour
 {
@@ -8,25 +9,31 @@ public class MeshScanner : MonoBehaviour
     public GameObject gazeCursor;
     public MeshExporter meshExporter;
 
-    // Odwołanie do SendServer
-    public SendServer sendServer; 
+    // Reference to SendServer
+    public SendServer sendServer;
 
     private float gazeTimer = 0.0f;
     private GameObject currentTarget = null;
     private GameObject previousTarget = null;
-    private bool isScanning = true; // Automatyczne rozpoczęcie skanowania
-    private HashSet<Vector3> scannedVertices = new HashSet<Vector3>();
+    private bool isScanning = true; // Automatically start scanning
+    private List<Vector3> scannedVertices = new List<Vector3>();
+    private List<int> scannedTriangles = new List<int>();
+    private Dictionary<int, int> vertexIndexMap = new Dictionary<int, int>();
+    private HashSet<string> scannedTriangleSet = new HashSet<string>();
 
-    //DODANE
-    private float sendInterval = 10f; // Czas co ile sekund wysyłamy dane
-    private float sendTimer = 0f; // Zegar do śledzenia interwału wysyłania
-
-
+    private float sendInterval = 10f; // Interval in seconds to send data
+    private float sendTimer = 0f;     // Timer to track sending interval
 
     void Start()
     {
-        // Automatyczne rozpoczęcie skanowania
+        // Automatically start scanning
         SetScanningMode(true);
+
+        // Ensure sendServer is assigned
+        if (sendServer == null)
+        {
+            Debug.LogError("SendServer reference is not set in MeshScanner.");
+        }
     }
 
     void Update()
@@ -67,18 +74,13 @@ public class MeshScanner : MonoBehaviour
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
         }
 
-
-        //DODANE
-        // Wysyłanie danych co 10 sekund
+        // Send data every 10 seconds
         sendTimer += Time.deltaTime;
         if (sendTimer >= sendInterval)
         {
             SendScannedVerticesToServer();
-            sendTimer = 0f; // Reset zegara
+            sendTimer = 0f; // Reset timer
         }
-
-
-
     }
 
     public void SetScanningMode(bool isScanning)
@@ -90,45 +92,72 @@ public class MeshScanner : MonoBehaviour
     {
         Mesh mesh = meshFilter.sharedMesh;
         Vector3[] vertices = mesh.vertices;
+        int[] indices = mesh.triangles;
         Transform meshTransform = meshFilter.transform;
 
         Debug.Log($"Scanning mesh with {vertices.Length} vertices.");
 
-        foreach (Vector3 vertex in vertices)
+        // Loop through all vertices and identify those within the scan radius
+        for (int i = 0; i < vertices.Length; i++)
         {
-            Vector3 worldVertex = meshTransform.TransformPoint(vertex);
+            if (vertexIndexMap.ContainsKey(i))
+            {
+                // Vertex already scanned
+                continue;
+            }
+
+            Vector3 worldVertex = meshTransform.TransformPoint(vertices[i]);
             float distance = Vector3.Distance(worldVertex, hitPoint);
 
             if (distance < 5.0f)
             {
-                scannedVertices.Add(vertex);
+                vertexIndexMap[i] = scannedVertices.Count;
+                scannedVertices.Add(vertices[i]);
                 Debug.Log($"Vertex added at distance {distance}: {worldVertex}");
             }
         }
 
-        if (scannedVertices.Count == 0)
+        // Collect triangles composed entirely of scanned vertices
+        for (int i = 0; i < indices.Length; i += 3)
         {
-            Debug.LogWarning("No vertices found within the scan radius.");
+            int index0 = indices[i];
+            int index1 = indices[i + 1];
+            int index2 = indices[i + 2];
+
+            if (vertexIndexMap.ContainsKey(index0) &&
+                vertexIndexMap.ContainsKey(index1) &&
+                vertexIndexMap.ContainsKey(index2))
+            {
+                // Map original indices to new indices in scannedVertices
+                int newIndex0 = vertexIndexMap[index0];
+                int newIndex1 = vertexIndexMap[index1];
+                int newIndex2 = vertexIndexMap[index2];
+
+                // Create a unique key for the triangle to prevent duplicates
+                int[] sortedIndices = new int[] { newIndex0, newIndex1, newIndex2 };
+                Array.Sort(sortedIndices);
+                string triangleKey = $"{sortedIndices[0]}_{sortedIndices[1]}_{sortedIndices[2]}";
+
+                if (!scannedTriangleSet.Contains(triangleKey))
+                {
+                    scannedTriangleSet.Add(triangleKey);
+
+                    scannedTriangles.Add(newIndex0);
+                    scannedTriangles.Add(newIndex1);
+                    scannedTriangles.Add(newIndex2);
+                }
+            }
         }
-        else
-        {
-            Debug.Log($"Scanned {scannedVertices.Count} vertices.");
-        }
+
+        Debug.Log($"Scanned {vertexIndexMap.Count} vertices and updated triangles.");
 
         meshFilter.GetComponent<Renderer>().material.color = Color.green;
     }
 
-
-
-    //DODANA FUNKCJA
-    //-------------------------------------------------------------------------------------
-    public HashSet<Vector3> GetScannedVertices()
+    public List<Vector3> GetScannedVertices()
     {
-        return scannedVertices;  // Zwróć zebrane wierzchołki
+        return scannedVertices; // Return collected vertices
     }
-    //-------------------------------------------------------------------------------------
-
-
 
     public void ExportScannedMesh()
     {
@@ -138,11 +167,12 @@ public class MeshScanner : MonoBehaviour
             return;
         }
 
-        // Assuming you have a method to get the triangles from the scanned mesh
-        List<int> scannedTriangles = GetScannedTriangles();
+        _ = meshExporter.ExportMeshToObjAsync(scannedVertices, scannedTriangles, "scanned_mesh.obj");
 
-        _ = meshExporter.ExportMeshToObjAsync(new List<Vector3>(scannedVertices), scannedTriangles, "scanned_mesh.obj");
         scannedVertices.Clear();
+        scannedTriangles.Clear();
+        vertexIndexMap.Clear();
+        scannedTriangleSet.Clear();
     }
 
     private void UpdateGazeCursor(Vector3 position)
@@ -153,98 +183,41 @@ public class MeshScanner : MonoBehaviour
         }
     }
 
-    // Example method to get triangles (you need to implement this based on your mesh data)
-    private List<int> GetScannedTriangles()
-    {
-        // Implement logic to get triangles from the scanned mesh
-        return new List<int>();
-    }
-
-
-
-    //DODANA FUNKCJA
-    //-------------------------------------------------------------------------------------
-    // Wysyła zeskanowane wierzchołki na serwer co 10 sekund
+    // Sends scanned vertices and triangles to the server every 10 seconds
     private void SendScannedVerticesToServer()
     {
         if (scannedVertices.Count == 0) return;
 
-        List<Vector3> verticesList = new List<Vector3>(scannedVertices);
+        // Convert vertices and triangles to JSON format
+        //ScannedMeshData data = new ScannedMeshData(scannedVertices, scannedTriangles);
+        //string json = JsonUtility.ToJson(data);
+        string obj = meshExporter.GenerateObjData(scannedVertices, scannedTriangles);
+        // Log the JSON data for debugging
+        Debug.Log($"Sending OBJ data to server: {obj}");
 
-        // Konwertujemy wierzchołki na format JSON
-        string json = JsonUtility.ToJson(new ScannedMeshData(verticesList));
-
-        // Wysyłamy dane na serwer
-        sendServer.Send(json);
-        Debug.Log("Wysłano wierzchołki na serwer.");
+        // Send data to the server
+        if (sendServer != null)
+        {
+            sendServer.Send(obj);
+            Debug.Log("Vertices and triangles sent to the server.");
+        }
+        else
+        {
+            Debug.LogError("SendServer reference is not set in MeshScanner.");
+        }
     }
 
-    // Klasa pomocnicza do przesyłania wierzchołków w formacie JSON
+    // Helper class for sending vertices and triangles in JSON format
     [System.Serializable]
     public class ScannedMeshData
     {
         public List<Vector3> vertices;
+        public List<int> triangles;
 
-        public ScannedMeshData(List<Vector3> vertices)
+        public ScannedMeshData(List<Vector3> vertices, List<int> triangles)
         {
             this.vertices = vertices;
+            this.triangles = triangles;
         }
     }
-    //-------------------------------------------------------------------------------------
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
