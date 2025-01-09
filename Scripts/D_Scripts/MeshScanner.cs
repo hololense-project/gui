@@ -8,11 +8,20 @@ public class MeshScanner : MonoBehaviour
     public GameObject gazeCursor;
     public MeshExporter meshExporter;
 
+    // Odwołanie do SendServer
+    public SendServer sendServer; 
+
     private float gazeTimer = 0.0f;
     private GameObject currentTarget = null;
     private GameObject previousTarget = null;
     private bool isScanning = true; // Automatyczne rozpoczęcie skanowania
     private HashSet<Vector3> scannedVertices = new HashSet<Vector3>();
+
+    //DODANE
+    private float sendInterval = 10f; // Czas co ile sekund wysyłamy dane
+    private float sendTimer = 0f; // Zegar do śledzenia interwału wysyłania
+
+
 
     void Start()
     {
@@ -57,6 +66,19 @@ public class MeshScanner : MonoBehaviour
             gazeTimer = 0.0f;
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
         }
+
+
+        //DODANE
+        // Wysyłanie danych co 10 sekund
+        sendTimer += Time.deltaTime;
+        if (sendTimer >= sendInterval)
+        {
+            SendScannedVerticesToServer();
+            sendTimer = 0f; // Reset zegara
+        }
+
+
+
     }
 
     public void SetScanningMode(bool isScanning)
@@ -97,6 +119,17 @@ public class MeshScanner : MonoBehaviour
     }
 
 
+
+    //DODANA FUNKCJA
+    //-------------------------------------------------------------------------------------
+    public HashSet<Vector3> GetScannedVertices()
+    {
+        return scannedVertices;  // Zwróć zebrane wierzchołki
+    }
+    //-------------------------------------------------------------------------------------
+
+
+
     public void ExportScannedMesh()
     {
         if (scannedVertices.Count == 0)
@@ -126,4 +159,92 @@ public class MeshScanner : MonoBehaviour
         // Implement logic to get triangles from the scanned mesh
         return new List<int>();
     }
+
+
+
+    //DODANA FUNKCJA
+    //-------------------------------------------------------------------------------------
+    // Wysyła zeskanowane wierzchołki na serwer co 10 sekund
+    private void SendScannedVerticesToServer()
+    {
+        if (scannedVertices.Count == 0) return;
+
+        List<Vector3> verticesList = new List<Vector3>(scannedVertices);
+
+        // Konwertujemy wierzchołki na format JSON
+        string json = JsonUtility.ToJson(new ScannedMeshData(verticesList));
+
+        // Wysyłamy dane na serwer
+        sendServer.Send(json);
+        Debug.Log("Wysłano wierzchołki na serwer.");
+    }
+
+    // Klasa pomocnicza do przesyłania wierzchołków w formacie JSON
+    [System.Serializable]
+    public class ScannedMeshData
+    {
+        public List<Vector3> vertices;
+
+        public ScannedMeshData(List<Vector3> vertices)
+        {
+            this.vertices = vertices;
+        }
+    }
+    //-------------------------------------------------------------------------------------
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
