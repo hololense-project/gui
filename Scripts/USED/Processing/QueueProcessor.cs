@@ -23,12 +23,18 @@ public class QueueProcessor : MonoBehaviour
             string filePath = Application.persistentDataPath + $"/mesh_{meshFilter.GetInstanceID()}.obj";
             string compressedPath = filePath + ".gz";
 
+            // Przygotowanie danych do eksportu
             List<Vector3> vertices = new List<Vector3>(meshFilter.sharedMesh.vertices);
             List<int> triangles = new List<int>(meshFilter.sharedMesh.triangles);
+
+            // Tworzymy tymczasowego MeshExportera
             MeshExporter meshExporter = new MeshExporter();
             await meshExporter.ExportMeshToObjAsync(vertices, triangles, filePath);
+
+            // Kompresja pliku .obj
             await Compressor.CompressFileAsync(filePath, compressedPath);
 
+            // Upload kompresowanego pliku
             Uploader uploader = gameObject.AddComponent<Uploader>();
             StartCoroutine(uploader.UploadFileAsync(compressedPath));
         }
