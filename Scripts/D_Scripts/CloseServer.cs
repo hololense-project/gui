@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CloseServer : MonoBehaviour
 {
     private WebRTCClient _client;
+    public Button closeButton; // Assign this in the Inspector
 
     public void SetClient(WebRTCClient client)
     {
@@ -12,14 +14,13 @@ public class CloseServer : MonoBehaviour
 
     void Start()
     {
-        Button closeButton = GameObject.Find("CloseButton").GetComponent<Button>();
         if (closeButton != null)
         {
             closeButton.onClick.AddListener(OnCloseButtonClicked);
         }
         else
         {
-            Debug.LogError("CloseButton not found in the scene.");
+            Debug.LogError("CloseButton reference is not set in CloseServer.");
         }
     }
 
