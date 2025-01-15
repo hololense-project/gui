@@ -13,7 +13,7 @@ public class ServerWebRTC : MonoBehaviour
         serverIPAddress = ipAddress;
     }
 
-    // only for testing in unity
+    // in case keyboard on hololense does not work
     private void Start()
     {
         InitClient();
@@ -24,8 +24,7 @@ public class ServerWebRTC : MonoBehaviour
         if (string.IsNullOrEmpty(serverIPAddress))
         {
             Debug.LogError("Set to default IP Address 192.168.0.177");
-            //SetServerIPAddress("192.168.0.177");
-            SetServerIPAddress("localhost");
+            SetServerIPAddress("192.168.0.177");
             //return;
         }
 
