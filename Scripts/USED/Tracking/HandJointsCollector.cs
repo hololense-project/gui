@@ -1,19 +1,14 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using System.Collections;
+using System.Text;
 
 public class HandJointsCollector : MonoBehaviour
 {
     // Dictionary to store joint positions for each hand
     private Dictionary<TrackedHandJoint, Transform> leftHandJoints = new Dictionary<TrackedHandJoint, Transform>();
     private Dictionary<TrackedHandJoint, Transform> rightHandJoints = new Dictionary<TrackedHandJoint, Transform>();
-
-    // Auto-save interval in seconds
-    [SerializeField] private float autoSaveInterval = 0.5f;
-    private Coroutine autoSaveCoroutine;
 
     // Queue to store joint data for sending to the server
     private Queue<string> jointDataQueue = new Queue<string>();
@@ -23,9 +18,6 @@ public class HandJointsCollector : MonoBehaviour
         // Initialize joint dictionaries
         InitializeHandJoints(leftHandJoints);
         InitializeHandJoints(rightHandJoints);
-
-        // Start the auto-save routine
-        autoSaveCoroutine = StartCoroutine(AutoSaveRoutine());
     }
 
     private void Update()
@@ -33,6 +25,9 @@ public class HandJointsCollector : MonoBehaviour
         // Update joint positions for each hand
         UpdateHandJoints(Handedness.Left, leftHandJoints);
         UpdateHandJoints(Handedness.Right, rightHandJoints);
+
+        // Collect data in real-time
+        AppendJointDataToQueue();
     }
 
     private void InitializeHandJoints(Dictionary<TrackedHandJoint, Transform> handJoints)
@@ -57,38 +52,6 @@ public class HandJointsCollector : MonoBehaviour
         }
     }
 
-    public void SaveHandJointsToFile(string fileName)
-    {
-        string filePath = Path.Combine(Application.persistentDataPath, fileName);
-        using (StreamWriter writer = new StreamWriter(filePath))
-        {
-            writer.WriteLine("Left Hand Joints:");
-            SaveHandJoints(writer, leftHandJoints);
-
-            writer.WriteLine("Right Hand Joints:");
-            SaveHandJoints(writer, rightHandJoints);
-        }
-        Debug.Log($"Hand joints saved to {filePath}");
-    }
-
-    private void SaveHandJoints(StreamWriter writer, Dictionary<TrackedHandJoint, Transform> handJoints)
-    {
-        foreach (var joint in handJoints)
-        {
-            writer.WriteLine($"{joint.Key}: Position = {joint.Value.position}, Rotation = {joint.Value.rotation}");
-        }
-    }
-
-    private IEnumerator AutoSaveRoutine()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(autoSaveInterval);
-            SaveHandJointsToFile("HandJointsData.txt");
-            AppendJointDataToQueue();
-        }
-    }
-
     private void AppendJointDataToQueue()
     {
         string jointData = GetJointDataString();
@@ -100,21 +63,20 @@ public class HandJointsCollector : MonoBehaviour
 
     private string GetJointDataString()
     {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        sb.AppendLine("Left Hand Joints:");
+        StringBuilder sb = new StringBuilder();
         AppendJointData(sb, leftHandJoints);
-
-        sb.AppendLine("Right Hand Joints:");
         AppendJointData(sb, rightHandJoints);
-
+        sb.Length--; // Remove the last comma
         return sb.ToString();
     }
 
-    private void AppendJointData(System.Text.StringBuilder sb, Dictionary<TrackedHandJoint, Transform> handJoints)
+    private void AppendJointData(StringBuilder sb, Dictionary<TrackedHandJoint, Transform> handJoints)
     {
         foreach (var joint in handJoints)
         {
-            sb.AppendLine($"{joint.Key}: Position = {joint.Value.position}, Rotation = {joint.Value.rotation}");
+            Vector3 position = joint.Value.position;
+            Quaternion rotation = joint.Value.rotation;
+            sb.Append($"{position.x},{position.y},{position.z},{rotation.x},{rotation.y},{rotation.z},{rotation.w},");
         }
     }
 
@@ -133,16 +95,14 @@ public class HandJointsCollector : MonoBehaviour
         }
     }
 
-    public Dictionary<TrackedHandJoint, Transform> GetLeftHandJoints()
+    public string GetCSVHeader()
     {
-        return leftHandJoints;
-    }
-
-    public Dictionary<TrackedHandJoint, Transform> GetRightHandJoints()
-    {
-        return rightHandJoints;
+        StringBuilder header = new StringBuilder();
+        foreach (TrackedHandJoint joint in System.Enum.GetValues(typeof(TrackedHandJoint)))
+        {
+            header.Append($"{joint}PositionX,{joint}PositionY,{joint}PositionZ,{joint}RotationX,{joint}RotationY,{joint}RotationZ,{joint}RotationW,");
+        }
+        header.Length--; // Remove the last comma
+        return header.ToString();
     }
 }
-
-
-

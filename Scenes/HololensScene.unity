@@ -2923,8 +2923,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2665847549521150359, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
+      propertyPath: safeZoneBuffer
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665847549521150359, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: onLastHandLost.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2665847549804687481, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: m_LocalScale.x
@@ -2977,6 +2981,18 @@ PrefabInstance:
     - target: {fileID: 3307930098594596160, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: m_HorizontalAlignment
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3693999313254176305, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
+      propertyPath: keywords.Array.data[0].response.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3693999313254176305, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
+      propertyPath: keywords.Array.data[1].response.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3693999313254176308, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
+      propertyPath: minDistance
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3952178885830326351, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: nodeList.Array.data[1].Transform
@@ -3090,7 +3106,8 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3693999313254176306, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
     m_RemovedGameObjects:
     - {fileID: 2665847548225607866, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
     - {fileID: 3307930099080844464, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
@@ -4555,7 +4572,6 @@ MonoBehaviour:
   headPositionCollector: {fileID: 1636357661}
   eyeTrackingCollector: {fileID: 1636357663}
   serverWebRTC: {fileID: 212753003}
-  sendInterval: 1
 --- !u!4 &1407523640
 Transform:
   m_ObjectHideFlags: 0
@@ -5743,7 +5759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ef5d139076010c439140a55e5e6ed8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoSaveInterval: 0.5
 --- !u!114 &1636357662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5756,7 +5771,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9231f8dbc07d7a84d8726574f0389553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoSaveInterval: 0.5
 --- !u!114 &1636357663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5769,7 +5783,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0965360cfd7bf654bb4059d62c0f669e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoSaveInterval: 0.5
 --- !u!4 &1636357664
 Transform:
   m_ObjectHideFlags: 0
@@ -7367,7 +7380,7 @@ MonoBehaviour:
   ignoreAngleClamp: 0
   ignoreDistanceClamp: 0
   useFixedVerticalPosition: 1
-  fixedVerticalPosition: -0.4
+  fixedVerticalPosition: -0.1
   orientToReferenceDirection: 0
 --- !u!114 &1899466827
 MonoBehaviour:

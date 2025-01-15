@@ -1,4 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -9,7 +12,8 @@ public class ServerCommunicator : MonoBehaviour
     [SerializeField] private EyeTrackingCollector eyeTrackingCollector;
     [SerializeField] private ServerWebRTC serverWebRTC;
 
-    [SerializeField] private float sendInterval = 1.0f;
+    private List<string> dataBuffer = new List<string>();
+    private int frameCounter = 0;
 
     private void Start()
     {
@@ -33,45 +37,105 @@ public class ServerCommunicator : MonoBehaviour
             Debug.LogError("ServerWebRTC not found in the scene.");
         }
 
-        // Start the coroutine to send data to the server
-        StartCoroutine(SendDataToServerRoutine());
+        // Start the auto-save routine
+        StartCoroutine(AutoSaveRoutine());
     }
 
-    private IEnumerator SendDataToServerRoutine()
+    private void Update()
+    {
+        frameCounter++;
+        if (frameCounter % 2 == 0)
+        {
+            CollectAndSendData();
+        }
+    }
+
+    private void CollectAndSendData()
+    {
+        StringBuilder csvData = new StringBuilder();
+
+        // Append headers
+        csvData.Append("Timestep,");
+        if (handJointsCollector != null)
+        {
+            csvData.Append(handJointsCollector.GetCSVHeader() + ",");
+        }
+        if (headPositionCollector != null)
+        {
+            csvData.Append(headPositionCollector.GetCSVHeader() + ",");
+        }
+        if (eyeTrackingCollector != null)
+        {
+            csvData.Append(eyeTrackingCollector.GetCSVHeader() + ",");
+        }
+        csvData.Length--; // Remove the last comma
+        csvData.AppendLine();
+
+        // Append data
+        csvData.Append(System.DateTime.Now.ToString("o")); // Exact time in ISO 8601 format
+
+        if (handJointsCollector != null)
+        {
+            string jointData = handJointsCollector.DequeueJointData();
+            if (!string.IsNullOrEmpty(jointData))
+            {
+                csvData.Append($",{jointData}");
+            }
+        }
+
+        if (headPositionCollector != null)
+        {
+            string headData = headPositionCollector.DequeueHeadData();
+            if (!string.IsNullOrEmpty(headData))
+            {
+                csvData.Append($",{headData}");
+            }
+        }
+
+        if (eyeTrackingCollector != null)
+        {
+            string eyeData = eyeTrackingCollector.DequeueEyeData();
+            if (!string.IsNullOrEmpty(eyeData))
+            {
+                csvData.Append($",{eyeData}");
+            }
+        }
+
+        string dataToSend = csvData.ToString();
+        lock (dataBuffer)
+        {
+            dataBuffer.Add(dataToSend);
+        }
+        _ = SendDataAsync(dataToSend);
+    }
+
+    private IEnumerator AutoSaveRoutine()
     {
         while (true)
         {
-            yield return new WaitForSeconds(sendInterval);
+            yield return new WaitForSeconds(10.0f); // Save every 10 seconds
+            SaveBufferedDataToFile("AggregatedData.csv");
+        }
+    }
 
-            if (serverWebRTC != null)
+    private void SaveBufferedDataToFile(string fileName)
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        using (StreamWriter writer = new StreamWriter(filePath, true))
+        {
+            lock (dataBuffer)
             {
-                if (eyeTrackingCollector != null)
+                if (dataBuffer.Count > 0)
                 {
-                    string eyeData = eyeTrackingCollector.DequeueEyeData();
-
-                    if (!string.IsNullOrEmpty(eyeData))
+                    foreach (var data in dataBuffer)
                     {
-                        _ = SendDataAsync(eyeData);
+                        writer.WriteLine(data);
                     }
-                }
-                if (handJointsCollector != null)
-                {
-                    string jointData = handJointsCollector.DequeueJointData();
-                    if (!string.IsNullOrEmpty(jointData))
-                    {
-                        _ = SendDataAsync(jointData);
-                    }
-                }
-                if (headPositionCollector != null)
-                {
-                    string headData = headPositionCollector.DequeueHeadData();
-                    if (!string.IsNullOrEmpty(headData))
-                    {
-                        _ = SendDataAsync(headData);
-                    }
+                    dataBuffer.Clear();
                 }
             }
         }
+        Debug.Log($"Aggregated data saved to {filePath}");
     }
 
     private async Task SendDataAsync(string data)
@@ -79,4 +143,3 @@ public class ServerCommunicator : MonoBehaviour
         await serverWebRTC.Send(data);
     }
 }
-

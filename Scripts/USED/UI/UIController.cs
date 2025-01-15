@@ -46,6 +46,8 @@ public class UIController : MonoBehaviour
             Debug.LogError("ServerWebRTC reference is not set in UIController.");
         }
 
+        // Explicitly set the scanning mode to false at launch
+        meshScanner.SetScanningMode(false);
         UpdateButtonText();
 
         // Hide the IP input field at the start
@@ -88,28 +90,45 @@ public class UIController : MonoBehaviour
     }
 
     // IP BUTTON
-    private void Update()
-    {
-        // Check if the IP keyboard input is done
-        if (ipKeyboard != null && ipKeyboard.status == TouchScreenKeyboard.Status.Done)
-        {
-            serverIPAddress = ipKeyboard.text;
-            ipKeyboard = null;
+    //private void Update()
+    //{
+    //    // Check if the IP keyboard input is done
+    //    if (ipKeyboard != null && ipKeyboard.status == TouchScreenKeyboard.Status.Done)
+    //    {
+    //        serverIPAddress = ipKeyboard.text;
+    //        ipKeyboard = null;
 
-            if (!string.IsNullOrEmpty(serverIPAddress))
-            {
-                // Set the IP address in ServerWebRTC and start the connection
-                serverWebRTC.SetServerIPAddress(serverIPAddress);
-                serverWebRTC.InitClient();
+    //        if (!string.IsNullOrEmpty(serverIPAddress))
+    //        {
+    //            // Set the IP address in ServerWebRTC and start the connection
+    //            serverWebRTC.SetServerIPAddress(serverIPAddress);
+    //            serverWebRTC.InitClient();
 
-                logText.text = "Connecting to " + serverIPAddress + "...";
-            }
-            else
-            {
-                logText.text = "No IP address entered.";
-            }
-        }
-    }
+    //            logText.text = "Connecting to " + serverIPAddress + "...";
+    //        }
+    //        else
+    //        {
+    //            logText.text = "No IP address entered.";
+    //        }
+    //    }
+
+    //    // Check if the Enter key is pressed
+    //    if (Keyboard.current.enterKey.wasPressedThisFrame)
+    //    {
+    //        if (!string.IsNullOrEmpty(serverIPAddress))
+    //        {
+    //            // Set the IP address in ServerWebRTC and start the connection
+    //            serverWebRTC.SetServerIPAddress(serverIPAddress);
+    //            serverWebRTC.InitClient();
+
+    //            logText.text = "Connecting to " + serverIPAddress + "...";
+    //        }
+    //        else
+    //        {
+    //            logText.text = "No IP address entered.";
+    //        }
+    //    }
+    //}
 
     public void OpenIPInput()
     {
@@ -256,4 +275,6 @@ public class UIController : MonoBehaviour
         }
     }
 }
+
+
 

@@ -18,7 +18,7 @@ public class MeshScanner : MonoBehaviour
     [Header("Server Settings")]
     [SerializeField] public ServerWebRTC serverWebRTC;
 
-    private bool isScanning = true;
+    private bool isScanning = false;
 
     private float gazeTimer = 0.0f;
     private GameObject currentTarget = null;
@@ -37,6 +37,9 @@ public class MeshScanner : MonoBehaviour
 
     private int autoExportCounter = 0;
 
+    private const int MaxVertices = 500; // Maximum number of vertices
+    private const int MaxTriangles = 1000; // Maximum number of triangles
+
     private void Start()
     {
         if (isScanning && autoExportCoroutine == null)
@@ -45,8 +48,8 @@ public class MeshScanner : MonoBehaviour
         }
 
         SetScanningMode(true);
-        scannedVertices.Capacity = 5000;
-        scannedTriangles.Capacity = 15000;
+        scannedVertices.Capacity = MaxVertices;
+        scannedTriangles.Capacity = MaxTriangles;
     }
 
     private float scanCheckInterval = 0.1f; // Scanning every 0.1 seconds
@@ -143,6 +146,13 @@ public class MeshScanner : MonoBehaviour
 
     private void ScanMesh(MeshFilter meshFilter, Vector3 hitPoint)
     {
+        if (scannedVertices.Count >= MaxVertices || scannedTriangles.Count >= MaxTriangles)
+        {
+            Debug.LogWarning("Reached maximum vertices or triangles limit. Exporting mesh...");
+            ExportScannedMesh();
+            return;
+        }
+
         Mesh mesh = meshFilter.sharedMesh;
         Vector3[] vertices = mesh.vertices;
         int[] indices = mesh.triangles;
@@ -156,7 +166,7 @@ public class MeshScanner : MonoBehaviour
 
         for (int i = 0; i < vertices.Length; i++)
         {
-            if (vertexIndexMap.ContainsKey(i))
+            if (vertexIndexMap.ContainsKey(i) || scannedVertices.Count >= MaxVertices)
                 continue;
 
             Vector3 worldVertex = meshTransform.TransformPoint(vertices[i]);
@@ -166,12 +176,15 @@ public class MeshScanner : MonoBehaviour
             {
                 vertexIndexMap[i] = scannedVertices.Count;
                 scannedVertices.Add(vertices[i]);
-                VisualizeVertex(worldVertex);
+                //VisualizeVertex(worldVertex);
             }
         }
 
         for (int i = 0; i < indices.Length; i += 3)
         {
+            if (scannedTriangles.Count >= MaxTriangles)
+                break;
+
             int index0 = indices[i];
             int index1 = indices[i + 1];
             int index2 = indices[i + 2];
@@ -233,6 +246,12 @@ public class MeshScanner : MonoBehaviour
         _ = meshExporter.ExportMeshToObjAsync(verticesCopy, trianglesCopy, fileName);
 
         EnqueueMeshDataForUpload(verticesCopy, trianglesCopy);
+
+        // Clear scanned data after exporting
+        scannedVertices.Clear();
+        scannedTriangles.Clear();
+        vertexIndexMap.Clear();
+        scannedTriangleSet.Clear();
     }
 
     private void EnqueueMeshDataForUpload(List<Vector3> vertices, List<int> triangles)
@@ -345,29 +364,30 @@ public class MeshScanner : MonoBehaviour
         return isScanning;
     }
 
-    private void VisualizeVertex(Vector3 position)
-    {
-        GameObject sphere;
-        if (vertexPool.Count > 0)
-        {
-            sphere = vertexPool.Dequeue();
-        }
-        else
-        {
-            sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.transform.localScale = Vector3.one * 0.05f;
-            sphere.GetComponent<Renderer>().material.color = Color.red;
-        }
+    //private void VisualizeVertex(Vector3 position)
+    //{
+    //    GameObject sphere;
+    //    if (vertexPool.Count > 0)
+    //    {
+    //        sphere = vertexPool.Dequeue();
+    //    }
+    //    else
+    //    {
+    //        sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+    //        sphere.transform.localScale = Vector3.one * 0.05f;
+    //        sphere.GetComponent<Renderer>().material.color = Color.red;
+    //    }
 
-        sphere.transform.position = position;
-        sphere.GetComponent<Renderer>().enabled = true;
-        StartCoroutine(HideSphere(sphere, 5.0f));
-    }
+    //    sphere.transform.position = position;
+    //    sphere.GetComponent<Renderer>().enabled = true;
+    //    StartCoroutine(HideSphere(sphere, 5.0f));
+    //}
 
-    private IEnumerator HideSphere(GameObject sphere, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        sphere.GetComponent<Renderer>().enabled = false;
-        vertexPool.Enqueue(sphere);
-    }
+    //private IEnumerator HideSphere(GameObject sphere, float delay)
+    //{
+    //    yield return new WaitForSeconds(delay);
+    //    sphere.GetComponent<Renderer>().enabled = false;
+    //    vertexPool.Enqueue(sphere);
+    //}
 }
+
