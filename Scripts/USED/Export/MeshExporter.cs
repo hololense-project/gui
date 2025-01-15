@@ -50,7 +50,7 @@ public class MeshExporter : MonoBehaviour
         return true;
     }
 
-    private string GenerateObjData(List<Vector3> vertices, List<int> triangles)
+    public string GenerateObjData(List<Vector3> vertices, List<int> triangles)
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("# Exported Mesh");
@@ -69,6 +69,8 @@ public class MeshExporter : MonoBehaviour
         {
             sb.AppendLine($"f {triangles[i] + 1} {triangles[i + 1] + 1} {triangles[i + 2] + 1}");
         }
+
+        sb.AppendLine("# Mesh sent");
 
         return sb.ToString();
     }

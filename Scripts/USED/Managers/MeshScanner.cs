@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using System.IO;
 
 public class MeshScanner : MonoBehaviour
 {
@@ -13,18 +13,17 @@ public class MeshScanner : MonoBehaviour
     [SerializeField] private MeshExporter meshExporter;
     [SerializeField] private MeshManager meshManager;
     [SerializeField] private TextMesh logText;
-    [SerializeField] private float autoExportInterval = 0.5f; // co 0.5 sekundy
-
+    [SerializeField] private float autoExportInterval = 0.5f; // Every 0.5 seconds
 
     [Header("Server Settings")]
-    [SerializeField] private RunServer runServer;
+    [SerializeField] public ServerWebRTC serverWebRTC;
 
-    private bool isScanning = true; 
+    private bool isScanning = true;
 
     private float gazeTimer = 0.0f;
     private GameObject currentTarget = null;
     private GameObject previousTarget = null;
-    
+
     private List<Vector3> scannedVertices = new List<Vector3>();
     private List<int> scannedTriangles = new List<int>();
     private Dictionary<int, int> vertexIndexMap = new Dictionary<int, int>();
@@ -33,7 +32,6 @@ public class MeshScanner : MonoBehaviour
     private bool isUploading = false;
     private readonly object scanDataLock = new object();
     private Queue<GameObject> vertexPool = new Queue<GameObject>();
-
 
     private Coroutine autoExportCoroutine;
 
@@ -51,7 +49,7 @@ public class MeshScanner : MonoBehaviour
         scannedTriangles.Capacity = 15000;
     }
 
-    private float scanCheckInterval = 0.1f; // Skanowanie co 0.1 sekundy a nie co klatkę
+    private float scanCheckInterval = 0.1f; // Scanning every 0.1 seconds
     private float lastScanCheckTime = 0.0f;
 
     private void Update()
@@ -64,7 +62,7 @@ public class MeshScanner : MonoBehaviour
 
         if (hits.Length > 0)
         {
-            // Znajdź najbliższy obiekt (unikamy problemów z trafieniem w niechciane obiekty)
+            // Find the closest hit
             RaycastHit closestHit = hits[0];
             foreach (var hit in hits)
             {
@@ -76,7 +74,6 @@ public class MeshScanner : MonoBehaviour
         }
         else
         {
-            // Jeśli Raycast nie trafił w żaden obiekt
             currentTarget = null;
             gazeTimer = 0.0f;
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
@@ -88,7 +85,7 @@ public class MeshScanner : MonoBehaviour
         currentTarget = hit.collider.gameObject;
         MeshFilter meshFilter = currentTarget.GetComponent<MeshFilter>();
 
-        if (meshFilter == null) return; // Brak siatki - nic nie robimy
+        if (meshFilter == null) return;
 
         if (currentTarget != previousTarget)
         {
@@ -104,13 +101,9 @@ public class MeshScanner : MonoBehaviour
             gazeTimer = 0.0f;
         }
 
-        // Aktualizacja pozycji kursora
         UpdateGazeCursor(hit.point);
     }
 
-    /// <summary>
-    /// Ustawia tryb skanowania – jeśli aktywny, uruchamiamy/skracamy auto-eksport.
-    /// </summary>
     public void SetScanningMode(bool isScanning)
     {
         this.isScanning = isScanning;
@@ -148,9 +141,6 @@ public class MeshScanner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Główna metoda skanowania siatki obiektu.
-    /// </summary>
     private void ScanMesh(MeshFilter meshFilter, Vector3 hitPoint)
     {
         Mesh mesh = meshFilter.sharedMesh;
@@ -164,23 +154,19 @@ public class MeshScanner : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Scanning mesh with {vertices.Length} vertices.");
-
         for (int i = 0; i < vertices.Length; i++)
         {
             if (vertexIndexMap.ContainsKey(i))
                 continue;
 
             Vector3 worldVertex = meshTransform.TransformPoint(vertices[i]);
-            //////////////////// WIZUALIZACJA WIERZCHOŁKÓW ?????????????????????
-            VisualizeVertex(worldVertex); 
             float distance = Vector3.Distance(worldVertex, hitPoint);
 
             if (distance < 5.0f)
             {
                 vertexIndexMap[i] = scannedVertices.Count;
                 scannedVertices.Add(vertices[i]);
-                Debug.Log($"Vertex added at distance {distance}: {worldVertex}");
+                VisualizeVertex(worldVertex);
             }
         }
 
@@ -198,15 +184,10 @@ public class MeshScanner : MonoBehaviour
                 int newIndex1 = vertexIndexMap[index1];
                 int newIndex2 = vertexIndexMap[index2];
 
-                // Lepszy algorytm sortowania indeksów :)
                 int minIndex = Mathf.Min(newIndex0, newIndex1, newIndex2);
                 int maxIndex = Mathf.Max(newIndex0, newIndex1, newIndex2);
                 int midIndex = newIndex0 + newIndex1 + newIndex2 - minIndex - maxIndex;
                 string triangleKey = $"{minIndex}_{midIndex}_{maxIndex}";
-
-                // int[] sortedIndices = new int[] { newIndex0, newIndex1, newIndex2 };
-                // Array.Sort(sortedIndices);
-                // string triangleKey = $"{sortedIndices[0]}_{sortedIndices[1]}_{sortedIndices[2]}";
 
                 if (!scannedTriangleSet.Contains(triangleKey))
                 {
@@ -218,9 +199,6 @@ public class MeshScanner : MonoBehaviour
             }
         }
 
-        Debug.Log($"Scanned {vertexIndexMap.Count} vertices and updated triangles.");
-
-        // Oznaczenie wizualne zeskanowanego obiektu
         Renderer rend = meshFilter.GetComponent<Renderer>();
         if (rend != null)
         {
@@ -239,7 +217,7 @@ public class MeshScanner : MonoBehaviour
         List<Vector3> verticesCopy;
         List<int> trianglesCopy;
 
-        lock (scanDataLock) // Blokujemy dostęp do danych na czas kopiowania
+        lock (scanDataLock)
         {
             verticesCopy = new List<Vector3>(scannedVertices);
             trianglesCopy = new List<int>(scannedTriangles);
@@ -257,80 +235,79 @@ public class MeshScanner : MonoBehaviour
         EnqueueMeshDataForUpload(verticesCopy, trianglesCopy);
     }
 
-    private async void EnqueueMeshDataForUpload(List<Vector3> vertices, List<int> triangles)
+    private void EnqueueMeshDataForUpload(List<Vector3> vertices, List<int> triangles)
     {
-        var scannedData = new ScannedMeshData(vertices, triangles);
-        string jsonData = JsonUtility.ToJson(scannedData);
+        string objData = meshExporter.GenerateObjData(vertices, triangles);
+        uploadQueue.Enqueue(objData);
 
-        // Zapisz JSON do kolejki zamiast wysyłać natychmiast
-        uploadQueue.Enqueue(jsonData);
-        
-        // Jeśli kolejka nie jest zajęta, zacznij wysyłanie
         if (!isUploading)
         {
-            await ProcessUploadQueue();
+            StartCoroutine(ProcessUploadQueue());
         }
     }
 
-    private async Task ProcessUploadQueue()
+    private IEnumerator ProcessUploadQueue()
     {
-        if (isUploading) return;
+        if (isUploading) yield break;
         isUploading = true;
 
         while (uploadQueue.Count > 0)
         {
-            string jsonData = uploadQueue.Dequeue();
+            string objData = uploadQueue.Dequeue();
 
-            if (runServer != null)
+            if (serverWebRTC != null)
             {
-                bool uploadSuccess = await Task.Run(async () => 
+                bool success = false;
+                while (!success)
                 {
-                    try
+                    var sendTask = serverWebRTC.Send(objData);
+                    yield return new WaitUntil(() => sendTask.IsCompleted);
+
+                    if (sendTask.Exception == null)
                     {
-                        await runServer.PostDataToServer(jsonData);
                         Debug.Log("Data successfully sent to server.");
-                        return true;
+                        Debug.Log(objData);
+                        success = true;
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Debug.LogError($"Failed to send data: {ex.Message}. Retrying...");
-                        return false;
-                    }
-                });
+                        Debug.LogError($"Failed to send data: {sendTask.Exception.InnerException?.Message}. Retrying...");
 
-                if (!uploadSuccess)
-                {
-                    uploadQueue.Enqueue(jsonData);
-                    if (uploadQueue.Count > 10)
-                    {
-                        Debug.LogError("Too many failed uploads, aborting.");
-                        break;
-                    }
+                        uploadQueue.Enqueue(objData);
 
-                    await Task.Delay(5000);
+                        if (uploadQueue.Count > 10)
+                        {
+                            Debug.LogError("Too many failed uploads, aborting.");
+                            break;
+                        }
+
+                        yield return new WaitForSeconds(5);
+                    }
                 }
             }
             else
             {
-                Debug.LogError("runServer reference is not set in MeshScanner.");
+                Debug.LogError("ServerWebRTC reference is not set in MeshScanner.");
             }
+
+            yield return null;
         }
 
         isUploading = false;
     }
 
-    /// <summary>
-    /// Eksport automatyczny – generuje nazwę z licznikiem.
-    /// </summary>
     private void ExportScannedMeshAuto()
     {
-        string fileName = $"mesh_{DateTime.Now:yyyyMMdd_HHmmss}_{autoExportCounter++}.obj";
+        string directoryPath = Path.Combine(Application.persistentDataPath, "exported_meshes");
+        if (!System.IO.Directory.Exists(directoryPath))
+        {
+            System.IO.Directory.CreateDirectory(directoryPath);
+        }
+
+        string fileName = $"{directoryPath}/mesh_{DateTime.Now:yyyyMMdd_HHmmss}_{autoExportCounter++}.obj";
         ExportScannedMesh(fileName);
     }
 
-    /// <summary>
-    /// Coroutine wywołująca auto-eksport co autoExportInterval sekund.
-    /// </summary>
     private IEnumerator AutoExportRoutine()
     {
         while (isScanning)
@@ -383,15 +360,14 @@ public class MeshScanner : MonoBehaviour
         }
 
         sphere.transform.position = position;
-        sphere.GetComponent<Renderer>().enabled = true; // Włącz widoczność
+        sphere.GetComponent<Renderer>().enabled = true;
         StartCoroutine(HideSphere(sphere, 5.0f));
     }
 
     private IEnumerator HideSphere(GameObject sphere, float delay)
     {
         yield return new WaitForSeconds(delay);
-        sphere.GetComponent<Renderer>().enabled = false; // Ukryj zamiast wyłączać
+        sphere.GetComponent<Renderer>().enabled = false;
         vertexPool.Enqueue(sphere);
     }
-
 }
