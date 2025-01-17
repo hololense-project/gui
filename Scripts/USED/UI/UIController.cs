@@ -6,6 +6,7 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 using System.IO;
 using UnityEngine.InputSystem;
 using System;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -13,18 +14,16 @@ public class UIController : MonoBehaviour
     [SerializeField] private MeshScanner meshScanner;
     [Header("WebRTC Server Reference")]
     [SerializeField] public ServerWebRTC serverWebRTC;
+    [Header("Adv logger")]
+    [SerializeField] public AdvancedLogger _logger;
 
     [Header("UI Elements")]
     [SerializeField] private GameObject ScanButton;
     [SerializeField] private TextMeshPro ScanButtonText;
     [SerializeField] private TextMesh logText;
 
-    [Header("IP Button Elements")]
-    [SerializeField] private GameObject ipButton;
-    [SerializeField] private TextMeshPro ipButtonText;
-
-    private TouchScreenKeyboard ipKeyboard;
-    private string serverIPAddress = "";
+    [Header("IP Input Field")]
+    [SerializeField] private TMP_InputField ipInputField;
 
     [Header("Load Mesh Button Elements")]
     [SerializeField] private GameObject loadMeshButton;
@@ -34,8 +33,15 @@ public class UIController : MonoBehaviour
     [SerializeField] private GameObject meshCollectionPanel;
     [SerializeField] private GameObject meshButtonPrefab;
 
+    private string serverIPAddress = "";
+
     private void Start()
     {
+
+        // Ustaw katalog logów
+        string logDirectoryPath = Path.Combine(Application.persistentDataPath, "Keboard_logs");
+        _logger = new AdvancedLogger(logDirectoryPath);
+
         if (meshScanner == null)
         {
             Debug.LogError("MeshScanner reference is not set in UIController.");
@@ -50,11 +56,10 @@ public class UIController : MonoBehaviour
         meshScanner.SetScanningMode(false);
         UpdateButtonText();
 
-        // Hide the IP input field at the start
-        // Set initial text for IP button
-        if (ipButtonText != null)
+        // Initialize IP input field
+        if (ipInputField != null)
         {
-            ipButtonText.text = "Set IP";
+            ipInputField.onEndEdit.AddListener(OnIPInputEndEdit);
         }
 
         // Initialize Load Mesh Button
@@ -89,51 +94,23 @@ public class UIController : MonoBehaviour
         }
     }
 
-    // IP BUTTON
-    //private void Update()
-    //{
-    //    // Check if the IP keyboard input is done
-    //    if (ipKeyboard != null && ipKeyboard.status == TouchScreenKeyboard.Status.Done)
-    //    {
-    //        serverIPAddress = ipKeyboard.text;
-    //        ipKeyboard = null;
-
-    //        if (!string.IsNullOrEmpty(serverIPAddress))
-    //        {
-    //            // Set the IP address in ServerWebRTC and start the connection
-    //            serverWebRTC.SetServerIPAddress(serverIPAddress);
-    //            serverWebRTC.InitClient();
-
-    //            logText.text = "Connecting to " + serverIPAddress + "...";
-    //        }
-    //        else
-    //        {
-    //            logText.text = "No IP address entered.";
-    //        }
-    //    }
-
-    //    // Check if the Enter key is pressed
-    //    if (Keyboard.current.enterKey.wasPressedThisFrame)
-    //    {
-    //        if (!string.IsNullOrEmpty(serverIPAddress))
-    //        {
-    //            // Set the IP address in ServerWebRTC and start the connection
-    //            serverWebRTC.SetServerIPAddress(serverIPAddress);
-    //            serverWebRTC.InitClient();
-
-    //            logText.text = "Connecting to " + serverIPAddress + "...";
-    //        }
-    //        else
-    //        {
-    //            logText.text = "No IP address entered.";
-    //        }
-    //    }
-    //}
-
-    public void OpenIPInput()
+    // IP INPUT FIELD
+    private async void OnIPInputEndEdit(string input)
     {
-        // Open the number and punctuation keyboard
-        ipKeyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumbersAndPunctuation);
+        serverIPAddress = input;
+
+        if (!string.IsNullOrEmpty(serverIPAddress))
+        {
+            // Set the IP address in ServerWebRTC and start the connection
+            //serverWebRTC.SetServerIPAddress(serverIPAddress);
+            //serverWebRTC.InitClient();
+
+            await _logger.LogAsync("Connecting to " + serverIPAddress + "...");
+        }
+        else
+        {
+            await _logger.LogAsync("No IP address entered.");
+        }
     }
 
     // LOAD MESH BUTTON
@@ -275,6 +252,4 @@ public class UIController : MonoBehaviour
         }
     }
 }
-
-
 

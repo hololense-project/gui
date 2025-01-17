@@ -47,7 +47,7 @@ public class MeshScanner : MonoBehaviour
             autoExportCoroutine = StartCoroutine(AutoExportRoutine());
         }
 
-        SetScanningMode(true);
+        SetScanningMode(false);
         scannedVertices.Capacity = MaxVertices;
         scannedTriangles.Capacity = MaxTriangles;
     }

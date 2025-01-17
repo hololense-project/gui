@@ -9,7 +9,7 @@ public class ServerWebRTC : MonoBehaviour
     private AdvancedLogger _logger;
     private string logDirectoryPath;
     private WebRTCClient _client;
-    private string serverIPAddress = "localhost"; // Domyślne IP
+    private string serverIPAddress = "192.168.0.101"; // Domyślne IP
     private int serverPort = 8765; // Domyślny port
     private string sessionId = "S1"; // Domyślny ID sesji
     private string channel = "chat"; // Domyślny kanał
