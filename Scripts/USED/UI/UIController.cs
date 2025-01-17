@@ -4,9 +4,7 @@ using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System.IO;
-using UnityEngine.InputSystem;
 using System;
-using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -22,9 +20,6 @@ public class UIController : MonoBehaviour
     [SerializeField] private TextMeshPro ScanButtonText;
     [SerializeField] private TextMesh logText;
 
-    [Header("IP Input Field")]
-    [SerializeField] private TMP_InputField ipInputField;
-
     [Header("Load Mesh Button Elements")]
     [SerializeField] private GameObject loadMeshButton;
     [SerializeField] private TextMeshPro loadMeshButtonText;
@@ -38,7 +33,7 @@ public class UIController : MonoBehaviour
     private void Start()
     {
 
-        // Ustaw katalog logów
+        // Ustaw katalog logï¿½w
         string logDirectoryPath = Path.Combine(Application.persistentDataPath, "Keboard_logs");
         _logger = new AdvancedLogger(logDirectoryPath);
 
@@ -55,12 +50,6 @@ public class UIController : MonoBehaviour
         // Explicitly set the scanning mode to false at launch
         meshScanner.SetScanningMode(false);
         UpdateButtonText();
-
-        // Initialize IP input field
-        if (ipInputField != null)
-        {
-            ipInputField.onEndEdit.AddListener(OnIPInputEndEdit);
-        }
 
         // Initialize Load Mesh Button
         if (loadMeshButtonText != null)
@@ -94,24 +83,21 @@ public class UIController : MonoBehaviour
         }
     }
 
-    // IP INPUT FIELD
-    private async void OnIPInputEndEdit(string input)
-    {
-        serverIPAddress = input;
+    // // IP INPUT FIELD
+    // private async void OnIPInputEndEdit(string input)
+    // {
+    //     serverIPAddress = input;
 
-        if (!string.IsNullOrEmpty(serverIPAddress))
-        {
-            // Set the IP address in ServerWebRTC and start the connection
-            //serverWebRTC.SetServerIPAddress(serverIPAddress);
-            //serverWebRTC.InitClient();
-
-            await _logger.LogAsync("Connecting to " + serverIPAddress + "...");
-        }
-        else
-        {
-            await _logger.LogAsync("No IP address entered.");
-        }
-    }
+    //     if (!string.IsNullOrEmpty(serverIPAddress))
+    //     {
+    //         serverWebRTC.SetServerIPAddress(serverIPAddress);
+    //         await _logger.LogAsync("Connecting to " + serverIPAddress + "...");
+    //     }
+    //     else
+    //     {
+    //         await _logger.LogAsync("No IP address entered.");
+    //     }
+    // }
 
     // LOAD MESH BUTTON
     public void OpenMeshCollection()

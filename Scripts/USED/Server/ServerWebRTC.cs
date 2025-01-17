@@ -9,19 +9,27 @@ public class ServerWebRTC : MonoBehaviour
     private AdvancedLogger _logger;
     private string logDirectoryPath;
     private WebRTCClient _client;
-    private string serverIPAddress = "192.168.0.101"; // Domyślne IP
+    private string serverIPAddress = "localhost"; // Domyślne IP
     private int serverPort = 8765; // Domyślny port
     private string sessionId = "S1"; // Domyślny ID sesji
     private string channel = "chat"; // Domyślny kanał
+    [SerializeField] private KeyboardHandler keyboardHandler;
 
     private async void Start()
     {
-        // Ustaw katalog logów
         logDirectoryPath = Path.Combine(Application.persistentDataPath, "ServerWebRTC_Logs");
         _logger = new AdvancedLogger(logDirectoryPath);
 
         await _logger.LogAsync("ServerWebRTC uruchomiony.");
         await _logger.LogAsync($"Logi będą zapisywane w katalogu: {logDirectoryPath}");
+
+        keyboardHandler.OpenKeyboard(serverIPAddress, TouchScreenKeyboardType.Default, false, false, false, false, SetServerIPAddress);
+    }
+
+    public async void SetServerIPAddress(string ipAddress)
+    {
+        serverIPAddress = ipAddress;
+        await _logger.LogAsync($"Ustawiono adres IP serwera: {serverIPAddress}");
 
         try
         {
