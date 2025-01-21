@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GazeCursor : MonoBehaviour
@@ -12,8 +14,8 @@ public class GazeCursor : MonoBehaviour
         {
             cameraTransform = Camera.main.transform;
         }
-        
-        // Ustawia kursor przed kamerÄ…
+
+        // Ustawia kursor przed kamer¹
         transform.position = cameraTransform.position + cameraTransform.forward * defaultDistance;
         transform.rotation = cameraTransform.rotation;
     }

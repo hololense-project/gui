@@ -1,5 +1,7 @@
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
 using Microsoft.MixedReality.Toolkit;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MeshManager : MonoBehaviour
@@ -27,10 +29,10 @@ public class MeshManager : MonoBehaviour
 
     private void ConfigureMeshObserver()
     {
-        // WÅ‚Ä…czanie i ustawianie parametrÃ³w skanowania
+        // W³¹czanie i ustawianie parametrów skanowania
         meshObserver.DisplayOption = SpatialAwarenessMeshDisplayOptions.Visible;
-        meshObserver.LevelOfDetail = SpatialAwarenessMeshLevelOfDetail.Coarse; // MoÅ¼na zmieniÄ‡ na Fine dla lepszej jakoÅ›ci
-        meshObserver.UpdateInterval = 1.0f; // Skanowanie co 1 sekundÄ™
+        meshObserver.LevelOfDetail = SpatialAwarenessMeshLevelOfDetail.Coarse; // Mo¿na zmieniæ na Fine dla lepszej jakoœci
+        meshObserver.UpdateInterval = 1.0f; // Skanowanie co 1 sekundê
     }
 
     public void HideMesh()

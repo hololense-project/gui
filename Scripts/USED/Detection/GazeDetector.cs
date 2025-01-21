@@ -1,5 +1,6 @@
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GazeDetector : MonoBehaviour
 {
@@ -56,7 +57,7 @@ public class GazeDetector : MonoBehaviour
             currentTarget = null;
             gazeTimer = 0.0f;
 
-            // PrzesuÅ„ kursor "w nieskoÅ„czonoÅ›Ä‡"
+            // Przesuñ kursor "w nieskoñczonoœæ"
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
         }
     }
@@ -77,7 +78,7 @@ public class GazeDetector : MonoBehaviour
             Debug.Log($"Scanned object: {target.name}");
             scannedObjects.Add(target);
 
-            // Zmiana koloru obiektu, aby zaznaczyÄ‡, Å¼e zostaÅ‚ zeskanowany
+            // Zmiana koloru obiektu, aby zaznaczyæ, ¿e zosta³ zeskanowany
             Renderer rend = target.GetComponent<Renderer>();
             if (rend != null)
             {
@@ -107,7 +108,7 @@ public class GazeDetector : MonoBehaviour
         // Asynchroniczne przetwarzanie kolejki
         await queueProcessor.ProcessQueueAsync();
 
-        // WyczyÅ›Ä‡ listÄ™ po eksporcie
+        // Wyczyœæ listê po eksporcie
         scannedObjects.Clear();
     }
 

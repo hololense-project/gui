@@ -1,11 +1,13 @@
 using TMPro;
 using UnityEngine;
 using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System.IO;
 using UnityEngine.InputSystem;
 using System;
+using System.Diagnostics.Contracts;
 
 public class UIController : MonoBehaviour
 {
@@ -23,8 +25,22 @@ public class UIController : MonoBehaviour
     [SerializeField] private GameObject ipButton;
     [SerializeField] private TextMeshPro ipButtonText;
 
+<<<<<<< Updated upstream
     private TouchScreenKeyboard ipKeyboard;
     private string serverIPAddress = "";
+=======
+    //private TouchScreenKeyboard ipKeyboard;
+    //private string serverIPAddress = "";
+
+    // Zmienne do klawiatury IP
+    public MixedRealityKeyboard keyboardIP;
+    private string ipAddress;
+
+    [Header("Session ID Button Elements")]
+    [SerializeField] private GameObject sessionIDButton;
+    public MixedRealityKeyboard keyboardSessionID;
+    private string sessionID;
+>>>>>>> Stashed changes
 
     [Header("Load Mesh Button Elements")]
     [SerializeField] private GameObject loadMeshButton;
@@ -89,7 +105,44 @@ public class UIController : MonoBehaviour
         }
     }
 
+<<<<<<< Updated upstream
     // IP BUTTON
+=======
+    //Session ID BUTTON
+    // Metoda do otwarcia klawiatury po kliknieciu przycisku
+    public void OpenSessionIDInput()
+    {
+        keyboardSessionID.ShowKeyboard();
+        Debug.Log("Wyswietlono klawiature do podania Session ID");
+    }
+
+    // Obs³uguje zatwierdzenie tekstu z klawiatury (zapisuje podane Session ID do zmiennej)
+    public void HandleKeyboardSessionIDCommit(string text)
+    {
+        sessionID = text;
+        Debug.Log("Wprowadzony tekst: " + sessionID);
+    }
+
+    //IP BUTTON
+    // Metoda do otwarcia klawiatury po kliknieciu przycisku
+    public void OpenIPInput()
+    {
+        keyboardIP.ShowKeyboard();
+        Debug.Log("Wyswietlono klawiature do podania IP");
+    }
+
+    // Obs³uguje zatwierdzenie tekstu z klawiatury (zapisuje podane IP do zmiennej i ³¹czy z serwerem)
+    public void HandleKeyboardIPCommit(string text)
+    {
+        ipAddress = text;
+        Debug.Log("Wprowadzony tekst: " + ipAddress);
+        // Mo¿esz tutaj u¿yæ ipAddress w dowolny sposób (np. przekazaæ do innej funkcji)
+
+        // DODAC SKRYPT £¥CZNOŒCI Z SERWEREM
+    }
+
+
+>>>>>>> Stashed changes
     //private void Update()
     //{
     //    // Check if the IP keyboard input is done
@@ -97,6 +150,7 @@ public class UIController : MonoBehaviour
     //    {
     //        serverIPAddress = ipKeyboard.text;
     //        ipKeyboard = null;
+<<<<<<< Updated upstream
 
     //        if (!string.IsNullOrEmpty(serverIPAddress))
     //        {
@@ -135,6 +189,42 @@ public class UIController : MonoBehaviour
         // Open the number and punctuation keyboard
         ipKeyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumbersAndPunctuation);
     }
+=======
+
+    //        if (!string.IsNullOrEmpty(serverIPAddress))
+    //        {
+    //            // Set the IP address in ServerWebRTC and start the connection
+    //            serverWebRTC.SetServerIPAddress(serverIPAddress);
+    //            serverWebRTC.InitClient();
+
+    //            logText.text = "Connecting to " + serverIPAddress + "...";
+    //        }
+    //        else
+    //        {
+    //            logText.text = "No IP address entered.";
+    //        }
+    //    }
+
+    //    // Check if the Enter key is pressed
+    //    if (Keyboard.current.enterKey.wasPressedThisFrame)
+    //    {
+    //        if (!string.IsNullOrEmpty(serverIPAddress))
+    //        {
+    //            // Set the IP address in ServerWebRTC and start the connection
+    //            serverWebRTC.SetServerIPAddress(serverIPAddress);
+    //            serverWebRTC.InitClient();
+
+    //            logText.text = "Connecting to " + serverIPAddress + "...";
+    //        }
+    //        else
+    //        {
+    //            logText.text = "No IP address entered.";
+    //        }
+    //    }
+    //}
+
+
+>>>>>>> Stashed changes
 
     // LOAD MESH BUTTON
     public void OpenMeshCollection()
