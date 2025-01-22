@@ -370,14 +370,14 @@ PrefabInstance:
     - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 2133391812}
+      objectReference: {fileID: 368848986}
     - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OpenIPInput
+      value: OpenKeyboard
       objectReference: {fileID: 0}
     - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UIController, Assembly-CSharp
+      value: KeyboardHandler, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 7652376644636595447, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: iconQuadTexture
@@ -541,6 +541,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150074092}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &152148766 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2665847548177823384, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
+  m_PrefabInstance: {fileID: 661050972}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &182131739
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,7 +690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c022c993cd8f54da77718cdd2e3a07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyboardHandler: {fileID: 0}
+  keyboardHandler: {fileID: 368848986}
 --- !u!4 &212753004
 Transform:
   m_ObjectHideFlags: 0
@@ -1454,7 +1459,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 368848985}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee6012f663c675943bdc63cc2d5954f7, type: 3}
+  m_Script: {fileID: 11500000, guid: 87cc9e1bfa9d08c40a70ae0eb30bee14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 1911983263}
@@ -2218,6 +2223,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 479206051}
   m_Mesh: {fileID: 4300010, guid: b566bbce04d66f4428421e81a3af0299, type: 3}
+--- !u!114 &480223221 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2665847548664129384, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
+  m_PrefabInstance: {fileID: 661050972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &491086949
 GameObject:
   m_ObjectHideFlags: 0
@@ -2253,6 +2269,11 @@ Transform:
   - {fileID: 989613260}
   m_Father: {fileID: 460366555}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &512326768 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 316800718, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+  m_PrefabInstance: {fileID: 333208266}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519358658
 GameObject:
   m_ObjectHideFlags: 0
@@ -2975,7 +2996,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2665847549521150359, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: onLastHandLost.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2665847549804687481, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: m_LocalScale.x
@@ -3202,6 +3223,17 @@ Transform:
   - {fileID: 1657161891}
   m_Father: {fileID: 1617228978}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &700992075 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 937783102, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+  m_PrefabInstance: {fileID: 333208266}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &747662001
 GameObject:
   m_ObjectHideFlags: 0
@@ -7467,11 +7499,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 160
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 30
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7483,7 +7515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7503,11 +7535,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 2093565322073310842, guid: 4daceed0c4c3c09468897226b8717688, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -7875,14 +7907,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshScanner: {fileID: 1776752163}
-  serverWebRTC: {fileID: 0}
-  ScanButton: {fileID: 0}
-  ScanButtonText: {fileID: 0}
+  serverWebRTC: {fileID: 212753003}
+  ScanButton: {fileID: 152148766}
+  ScanButtonText: {fileID: 480223221}
   logText: {fileID: 1896415138}
-  loadMeshButton: {fileID: 0}
-  loadMeshButtonText: {fileID: 0}
-  meshCollectionPanel: {fileID: 0}
-  meshButtonPrefab: {fileID: 0}
+  loadMeshButton: {fileID: 512326768}
+  loadMeshButtonText: {fileID: 700992075}
+  meshCollectionPanel: {fileID: 1899466823}
+  meshButtonPrefab: {fileID: 4962427267579779514, guid: ba7a7aa80b641cc40be358800935c1be, type: 3}
 --- !u!1 &2142023445
 GameObject:
   m_ObjectHideFlags: 0
