@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Globalization;
+using System;
 
 public class ServerCommunicator : MonoBehaviour
 {
@@ -54,25 +57,8 @@ public class ServerCommunicator : MonoBehaviour
     {
         StringBuilder csvData = new StringBuilder();
 
-        // Append headers
-        csvData.Append("Timestep,");
-        if (handJointsCollector != null)
-        {
-            csvData.Append(handJointsCollector.GetCSVHeader() + ",");
-        }
-        if (headPositionCollector != null)
-        {
-            csvData.Append(headPositionCollector.GetCSVHeader() + ",");
-        }
-        if (eyeTrackingCollector != null)
-        {
-            csvData.Append(eyeTrackingCollector.GetCSVHeader() + ",");
-        }
-        csvData.Length--; // Remove the last comma
-        csvData.AppendLine();
-
-        // Append data
-        csvData.Append(System.DateTime.Now.ToString("o")); // Exact time in ISO 8601 format
+        // Append data only
+        csvData.Append(DateTime.Now.ToString("o", CultureInfo.InvariantCulture)); // Exact time in ISO 8601 format
 
         if (handJointsCollector != null)
         {
@@ -121,18 +107,49 @@ public class ServerCommunicator : MonoBehaviour
     private void SaveBufferedDataToFile(string fileName)
     {
         string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        bool fileExists = File.Exists(filePath);
+
         using (StreamWriter writer = new StreamWriter(filePath, true))
         {
+            // Write headers only if the file does not exist
+            if (!fileExists)
+            {
+                StringBuilder headerBuilder = new StringBuilder();
+                headerBuilder.Append("Timestep,");
+                if (handJointsCollector != null)
+                {
+                    headerBuilder.Append(handJointsCollector.GetCSVHeader() + ",");
+                }
+                if (headPositionCollector != null)
+                {
+                    headerBuilder.Append(headPositionCollector.GetCSVHeader() + ",");
+                }
+                if (eyeTrackingCollector != null)
+                {
+                    headerBuilder.Append(eyeTrackingCollector.GetCSVHeader() + ",");
+                }
+                headerBuilder.Length--; // Remove the last comma
+                writer.WriteLine(headerBuilder.ToString());
+            }
+
+            List<string> linesToWrite;
             lock (dataBuffer)
             {
                 if (dataBuffer.Count > 0)
                 {
-                    foreach (var data in dataBuffer)
-                    {
-                        writer.WriteLine(data);
-                    }
+                    linesToWrite = new List<string>(dataBuffer);
                     dataBuffer.Clear();
                 }
+                else
+                {
+                    linesToWrite = new List<string>();
+                }
+            }
+
+            // Write data lines to the file
+            foreach (var line in linesToWrite)
+            {
+                writer.WriteLine(line);
             }
         }
         Debug.Log($"Aggregated data saved to {filePath}");

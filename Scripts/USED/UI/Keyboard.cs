@@ -12,10 +12,7 @@ public class KeyboardHandler : MonoBehaviour
 
     private void Start()
     {
-        if (openKeyboardButton != null)
-        {
-            openKeyboardButton.GetComponent<Button>().onClick.AddListener(OpenKeyboard);
-        }
+        OpenKeyboard();
     }
 
     public void OpenKeyboard()

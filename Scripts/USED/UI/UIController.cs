@@ -1,10 +1,10 @@
-using TMPro;
-using UnityEngine;
-using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Input;
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System.IO;
 using System;
+using TMPro;
+using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
@@ -32,8 +32,7 @@ public class UIController : MonoBehaviour
 
     private void Start()
     {
-
-        // Ustaw katalog log�w
+        // Ustaw katalog logów
         string logDirectoryPath = Path.Combine(Application.persistentDataPath, "Keboard_logs");
         _logger = new AdvancedLogger(logDirectoryPath);
 
@@ -83,29 +82,23 @@ public class UIController : MonoBehaviour
         }
     }
 
-    // // IP INPUT FIELD
-    // private async void OnIPInputEndEdit(string input)
-    // {
-    //     serverIPAddress = input;
-
-    //     if (!string.IsNullOrEmpty(serverIPAddress))
-    //     {
-    //         serverWebRTC.SetServerIPAddress(serverIPAddress);
-    //         await _logger.LogAsync("Connecting to " + serverIPAddress + "...");
-    //     }
-    //     else
-    //     {
-    //         await _logger.LogAsync("No IP address entered.");
-    //     }
-    // }
-
     // LOAD MESH BUTTON
-    public void OpenMeshCollection()
+    public async void OpenMeshCollection()
     {
         if (meshCollectionPanel != null)
         {
             meshCollectionPanel.SetActive(true);
-            PopulateMeshCollection();
+            string folderName = "grtest"; // Replace with your actual folder name
+            try
+            {
+                await serverWebRTC.DownloadObjFiles(folderName);
+                PopulateMeshCollection();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Error downloading .obj files: " + ex.Message);
+                await _logger.LogAsync("Error downloading .obj files: " + ex.Message);
+            }
         }
     }
 
@@ -238,4 +231,3 @@ public class UIController : MonoBehaviour
         }
     }
 }
-
