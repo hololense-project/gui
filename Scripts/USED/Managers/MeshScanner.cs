@@ -30,7 +30,6 @@ public class MeshScanner : MonoBehaviour
     private RaycastHit hit;
     private Renderer cachedRenderer;
     private MaterialPropertyBlock propertyBlock;
-    private float saveTimer = 0.0f;
 
     private void Start()
     {
@@ -60,13 +59,7 @@ public class MeshScanner : MonoBehaviour
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
         }
 
-        saveTimer += Time.deltaTime;
-        if (saveTimer >= 1.0f)
-        {
-            SaveCollectedData();
-            saveTimer = 0.0f;
-        }
-
+        SaveCollectedData();
         SendCollectedData();
     }
 
@@ -257,3 +250,5 @@ public class MeshScanner : MonoBehaviour
         return isScanning;
     }
 }
+
+

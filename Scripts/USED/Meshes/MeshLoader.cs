@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-//using GLTFast;
-//using GLTFast.Loading;
+using GLTFast;
+using GLTFast.Loading;
 
 public static class MeshLoader
 {
@@ -84,47 +84,71 @@ public static class MeshLoader
         {
             mesh.normals = normals.ToArray();
         }
+        else
+        {
+            mesh.RecalculateNormals();
+        }
         if (uvs.Count > 0)
         {
             mesh.uv = uvs.ToArray();
         }
+        else
+        {
+            mesh.RecalculateUVDistributionMetrics();
+        }
+        mesh.RecalculateBounds();
     }
 
-    //    public static async void LoadGLTF(string url, Transform parentTransform)
-    //{
-    //    GltfImport importer = new GltfImport();
-    //    bool success = await importer.Load(url);
-    //    if (success)
-    //    {
-    //        var instantiationResult = await importer.InstantiateMainSceneAsync(parentTransform);
-    //        if (!instantiationResult)
-    //        {
-    //            Debug.LogError("Failed to instantiate GLTF scene.");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError($"Failed to load GLTF from {url}.");
-    //    }
-    //}
 
-    //public static async void LoadGLB(string url, Transform parentTransform)
-    //{
-    //    GltfImport importer = new GltfImport();
-    //    bool success = await importer.Load(url);
-    //    if (success)
-    //    {
-    //        var instantiationResult = await importer.InstantiateMainSceneAsync(parentTransform);
-    //        if (!instantiationResult)
-    //        {
-    //            Debug.LogError("Failed to instantiate GLB scene.");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError($"Failed to load GLB from {url}.");
-    //    }
-    //}
+
+    public static async void LoadGLTF(string filePath, Transform parentTransform)
+    {
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError("File not found: " + filePath);
+            return;
+        }
+
+        GltfImport importer = new GltfImport();
+        bool success = await importer.Load(new Uri(filePath));
+        if (success)
+        {
+            var instantiationResult = await importer.InstantiateMainSceneAsync(parentTransform);
+            if (!instantiationResult)
+            {
+                Debug.LogError("Failed to instantiate GLTF scene.");
+            }
+        }
+        else
+        {
+            Debug.LogError($"Failed to load GLTF from {filePath}.");
+        }
+    }
+
+    public static async void LoadGLB(string filePath, Transform parentTransform)
+    {
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError("File not found: " + filePath);
+            return;
+        }
+
+        GltfImport importer = new GltfImport();
+        bool success = await importer.Load(new Uri(filePath));
+        if (success)
+        {
+            var instantiationResult = await importer.InstantiateMainSceneAsync(parentTransform);
+            if (!instantiationResult)
+            {
+                Debug.LogError("Failed to instantiate GLB scene.");
+            }
+        }
+        else
+        {
+            Debug.LogError($"Failed to load GLB from {filePath}.");
+        }
+    }
+
 
     public static void ParseAndModifyObjFile(string filePath)
     {

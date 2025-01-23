@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using TMPro;
 using UnityEngine;
+using GLTFast;
 
 public class UIController : MonoBehaviour
 {
@@ -213,24 +214,28 @@ public class UIController : MonoBehaviour
 
             MeshFilter meshFilter = meshObject.AddComponent<MeshFilter>();
             meshFilter.mesh = mesh;
+
+            MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();
+            // Assign a material that supports lighting and shadows
+            meshRenderer.material = new Material(Shader.Find("Standard"));
+            meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            meshRenderer.receiveShadows = true;
+
+            // Add a BoxCollider to the mesh
+            BoxCollider boxCollider = meshObject.AddComponent<BoxCollider>();
+            boxCollider.center = mesh.bounds.center;
+            boxCollider.size = mesh.bounds.size;
         }
         else if (extension == ".glb")
         {
-           // MeshLoader.LoadGLB(meshPath, meshObject.transform);
+            MeshLoader.LoadGLB(meshPath, meshObject.transform);
+            AddCollidersAndShadows(meshObject);
         }
         else if (extension == ".gltf")
         {
-            //MeshLoader.LoadGLTF(meshPath, meshObject.transform);
+            MeshLoader.LoadGLTF(meshPath, meshObject.transform);
+            AddCollidersAndShadows(meshObject);
         }
-
-        MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();
-        // Assign a default material to the meshRenderer
-        meshRenderer.material = new Material(Shader.Find("Standard"));
-
-        // Add a BoxCollider to the mesh
-        BoxCollider boxCollider = meshObject.AddComponent<BoxCollider>();
-        boxCollider.center = meshObject.GetComponent<MeshFilter>().mesh.bounds.center;
-        boxCollider.size = meshObject.GetComponent<MeshFilter>().mesh.bounds.size;
 
         // Make the object grabbable and scalable
         meshObject.AddComponent<NearInteractionGrabbable>();
@@ -260,5 +265,27 @@ public class UIController : MonoBehaviour
             meshCollectionPanel.SetActive(false);
         }
     }
+
+    private void AddCollidersAndShadows(GameObject meshObject)
+    {
+        // Add a BoxCollider to the mesh
+        MeshFilter[] meshFilters = meshObject.GetComponentsInChildren<MeshFilter>();
+        foreach (var meshFilter in meshFilters)
+        {
+            MeshRenderer meshRenderer = meshFilter.gameObject.GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                // Assign a material that supports lighting and shadows
+                meshRenderer.material = new Material(Shader.Find("Standard"));
+                meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+                meshRenderer.receiveShadows = true;
+            }
+
+            BoxCollider boxCollider = meshFilter.gameObject.AddComponent<BoxCollider>();
+            boxCollider.center = meshFilter.mesh.bounds.center;
+            boxCollider.size = meshFilter.mesh.bounds.size;
+        }
+    }
+
 }
 
