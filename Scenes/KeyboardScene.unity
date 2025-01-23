@@ -168,10 +168,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2147483671
   dwellTime: 0
-  minDistance: 0.5
-  maxDistance: 5
+  minDistance: 0.1
+  maxDistance: 10
   gazeCursor: {fileID: 41119560}
   queueProcessor: {fileID: 2133391811}
 --- !u!4 &41119563
@@ -469,7 +469,7 @@ GameObject:
   - component: {fileID: 150074093}
   - component: {fileID: 150074095}
   - component: {fileID: 150074094}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -557,7 +557,7 @@ GameObject:
   - component: {fileID: 182131740}
   - component: {fileID: 182131742}
   - component: {fileID: 182131741}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrabVisualCueHorizontalTop (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -638,7 +638,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 193080065}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: LabelPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -715,7 +715,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 226334142}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: IconAndText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -833,7 +833,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 241445625}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BackPlateToggleState
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -868,7 +868,7 @@ GameObject:
   - component: {fileID: 253775473}
   - component: {fileID: 253775471}
   - component: {fileID: 253775472}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HighlightPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1044,7 +1044,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 313590162}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Backplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1080,7 +1080,7 @@ GameObject:
   - component: {fileID: 329954896}
   - component: {fileID: 329954895}
   - component: {fileID: 329954894}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIButtonCharIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1410,7 +1410,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 333414097}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: 32x32mm_Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1443,7 +1443,7 @@ GameObject:
   m_Component:
   - component: {fileID: 368848987}
   - component: {fileID: 368848986}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Keyboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1490,7 +1490,7 @@ GameObject:
   - component: {fileID: 373944516}
   - component: {fileID: 373944518}
   - component: {fileID: 373944517}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1624,7 +1624,7 @@ GameObject:
   - component: {fileID: 460366558}
   - component: {fileID: 460366557}
   - component: {fileID: 460366556}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2243,7 +2243,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 491086950}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: IconAndText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2284,7 +2284,7 @@ GameObject:
   m_Component:
   - component: {fileID: 519358659}
   - component: {fileID: 519358660}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIButtonSpriteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2369,7 +2369,7 @@ GameObject:
   - component: {fileID: 571387729}
   - component: {fileID: 571387731}
   - component: {fileID: 571387730}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrabVisualCueHorizontalBottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2604,7 +2604,7 @@ GameObject:
   m_Component:
   - component: {fileID: 600897424}
   - component: {fileID: 600897425}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ButtonCollection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2666,7 +2666,7 @@ GameObject:
   m_Component:
   - component: {fileID: 634833372}
   - component: {fileID: 634833373}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ButtonCollection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2746,7 +2746,7 @@ GameObject:
   - component: {fileID: 651605575}
   - component: {fileID: 651605577}
   - component: {fileID: 651605576}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrabVisualCueHorizontalTop (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2996,7 +2996,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2665847549521150359, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: onLastHandLost.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2665847549804687481, guid: 8e490a62f12a9764a84b31db73256d39, type: 3}
       propertyPath: m_LocalScale.x
@@ -3200,7 +3200,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 699753356}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CompressableButtonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3246,7 +3246,7 @@ GameObject:
   - component: {fileID: 747662005}
   - component: {fileID: 747662004}
   - component: {fileID: 747662003}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TextMeshPro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3425,7 +3425,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 760836635}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CompressableButtonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3459,7 +3459,7 @@ GameObject:
   - component: {fileID: 778609069}
   - component: {fileID: 778609071}
   - component: {fileID: 778609070}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrabVisualCueVerticalLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3634,7 +3634,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 920566834}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: IconAndText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3670,7 +3670,7 @@ GameObject:
   m_Component:
   - component: {fileID: 989613260}
   - component: {fileID: 989613261}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIButtonSpriteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3755,7 +3755,7 @@ GameObject:
   - component: {fileID: 1033848032}
   - component: {fileID: 1033848034}
   - component: {fileID: 1033848033}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrabVisualCueVerticalRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3836,7 +3836,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1141618971}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: LabelPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3902,7 +3902,7 @@ GameObject:
   - component: {fileID: 1158144542}
   - component: {fileID: 1158144541}
   - component: {fileID: 1158144540}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TextMeshPro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4084,7 +4084,7 @@ GameObject:
   - component: {fileID: 1191623184}
   - component: {fileID: 1191623183}
   - component: {fileID: 1191623182}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HighlightPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4177,7 +4177,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1220210038}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ButtonContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4315,7 +4315,7 @@ GameObject:
   - component: {fileID: 1377048170}
   - component: {fileID: 1377048172}
   - component: {fileID: 1377048171}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4399,7 +4399,7 @@ GameObject:
   - component: {fileID: 1394185953}
   - component: {fileID: 1394185952}
   - component: {fileID: 1394185951}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HighlightPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4495,7 +4495,7 @@ GameObject:
   - component: {fileID: 1402002406}
   - component: {fileID: 1402002405}
   - component: {fileID: 1402002404}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: FrontPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4637,7 +4637,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1410718972}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CompressableButtonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4669,7 +4669,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1435989196}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PressableButtonHoloLens2Bar3H(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4711,7 +4711,7 @@ GameObject:
   - component: {fileID: 1540481422}
   - component: {fileID: 1540481421}
   - component: {fileID: 1540481420}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TextMeshPro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4900,7 +4900,7 @@ GameObject:
   - component: {fileID: 1557340208}
   - component: {fileID: 1557340207}
   - component: {fileID: 1557340206}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIButtonCharIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5085,7 +5085,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1559793610}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BackPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5120,7 +5120,7 @@ GameObject:
   - component: {fileID: 1591478435}
   - component: {fileID: 1591478434}
   - component: {fileID: 1591478433}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: FrontPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5216,7 +5216,7 @@ GameObject:
   - component: {fileID: 1600011167}
   - component: {fileID: 1600011169}
   - component: {fileID: 1600011168}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5304,7 +5304,7 @@ GameObject:
   - component: {fileID: 1617228973}
   - component: {fileID: 1617228976}
   - component: {fileID: 1617228975}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ButtonPin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5851,7 +5851,7 @@ GameObject:
   - component: {fileID: 1657161894}
   - component: {fileID: 1657161893}
   - component: {fileID: 1657161892}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: FrontPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5952,7 +5952,7 @@ GameObject:
   - component: {fileID: 1689187994}
   - component: {fileID: 1689187993}
   - component: {fileID: 1689187992}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6214,7 +6214,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1767158567}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ButtonContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6302,7 +6302,6 @@ MonoBehaviour:
   meshExporter: {fileID: 1776752164}
   meshManager: {fileID: 1776752162}
   logText: {fileID: 1896415138}
-  autoExportInterval: 0.5
   serverWebRTC: {fileID: 212753003}
 --- !u!114 &1776752164
 MonoBehaviour:
@@ -6325,7 +6324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1862127235}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: LabelPlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6363,7 +6362,7 @@ GameObject:
   - component: {fileID: 1877394722}
   - component: {fileID: 1877394721}
   - component: {fileID: 1877394720}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6890,7 +6889,7 @@ GameObject:
   - component: {fileID: 1878439679}
   - component: {fileID: 1878439681}
   - component: {fileID: 1878439680}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GrabVisualCueHorizontalTop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6975,7 +6974,7 @@ GameObject:
   - component: {fileID: 1882229101}
   - component: {fileID: 1882229100}
   - component: {fileID: 1882229099}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TextMeshPro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7160,7 +7159,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1884691128}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ButtonContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7193,6 +7192,10 @@ PrefabInstance:
     - target: {fileID: 1000013198843976, guid: 2d145caa42b44bd42aac79a42eba3d7c, type: 3}
       propertyPath: m_Name
       value: 3DTextSelawik
+      objectReference: {fileID: 0}
+    - target: {fileID: 1000013198843976, guid: 2d145caa42b44bd42aac79a42eba3d7c, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4000010330146594, guid: 2d145caa42b44bd42aac79a42eba3d7c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7257,7 +7260,7 @@ GameObject:
   - component: {fileID: 1899466826}
   - component: {fileID: 1899466825}
   - component: {fileID: 1899466824}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: NearMenu3x3(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7586,7 +7589,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2035019551}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: GravVisualCue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7660,7 +7663,7 @@ GameObject:
   - component: {fileID: 2133301708}
   - component: {fileID: 2133301707}
   - component: {fileID: 2133301706}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIButtonCharIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7925,7 +7928,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2142023446}
   - component: {fileID: 2142023447}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIButtonSpriteIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}

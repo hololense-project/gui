@@ -13,7 +13,7 @@ public class ServerWebRTC : MonoBehaviour
     private AdvancedLogger _logger;
     private string logDirectoryPath;
     private WebRTCClient _client;
-    private string serverIPAddress = "192.168.0.104"; // Default IP
+    private string serverIPAddress = "192.168.0.101"; // Default IP
     private int serverPort = 8765; // Default port
     private string sessionId = "S1"; // Default session ID
     private string channel = "chat"; // Default channel
@@ -268,11 +268,11 @@ public class ServerWebRTC : MonoBehaviour
         {
             await EnsureLoggedInAsync();
 
-            // Get the list of .obj files in the folder
+            // Get the list of mesh files in the folder
             string fileListResponse = await GetAsync(baseUrl);
-            List<string> objFiles = ParseObjFiles(fileListResponse);
+            List<string> meshFiles = ParseMeshFiles(fileListResponse);
 
-            foreach (string fileUrl in objFiles)
+            foreach (string fileUrl in meshFiles)
             {
                 string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(new Uri(fileUrl).LocalPath));
 
@@ -322,25 +322,25 @@ public class ServerWebRTC : MonoBehaviour
         }
         catch (Exception ex)
         {
-            await _logger.LogAsync($"Error downloading .obj files from {baseUrl}: {ex.Message}");
+            await _logger.LogAsync($"Error downloading mesh files from {baseUrl}: {ex.Message}");
         }
     }
 
-    private List<string> ParseObjFiles(string jsonResponse)
+    private List<string> ParseMeshFiles(string jsonResponse)
     {
-        var objFiles = new List<string>();
+        var meshFiles = new List<string>();
         var jsonArray = JArray.Parse(jsonResponse);
 
         foreach (var item in jsonArray)
         {
             var downloadLink = item["download_link"]?.ToString();
-            if (!string.IsNullOrEmpty(downloadLink) && downloadLink.EndsWith(".obj"))
+            if (!string.IsNullOrEmpty(downloadLink) && (downloadLink.EndsWith(".obj") || downloadLink.EndsWith(".glb") || downloadLink.EndsWith(".gltf")))
             {
-                objFiles.Add(downloadLink);
+                meshFiles.Add(downloadLink);
             }
         }
 
-        return objFiles;
+        return meshFiles;
     }
 
     public void AddCookie(string url, string name, string value)

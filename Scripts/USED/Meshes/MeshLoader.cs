@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+//using GLTFast;
+//using GLTFast.Loading;
 
 public static class MeshLoader
 {
@@ -87,6 +89,42 @@ public static class MeshLoader
             mesh.uv = uvs.ToArray();
         }
     }
+
+    //    public static async void LoadGLTF(string url, Transform parentTransform)
+    //{
+    //    GltfImport importer = new GltfImport();
+    //    bool success = await importer.Load(url);
+    //    if (success)
+    //    {
+    //        var instantiationResult = await importer.InstantiateMainSceneAsync(parentTransform);
+    //        if (!instantiationResult)
+    //        {
+    //            Debug.LogError("Failed to instantiate GLTF scene.");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError($"Failed to load GLTF from {url}.");
+    //    }
+    //}
+
+    //public static async void LoadGLB(string url, Transform parentTransform)
+    //{
+    //    GltfImport importer = new GltfImport();
+    //    bool success = await importer.Load(url);
+    //    if (success)
+    //    {
+    //        var instantiationResult = await importer.InstantiateMainSceneAsync(parentTransform);
+    //        if (!instantiationResult)
+    //        {
+    //            Debug.LogError("Failed to instantiate GLB scene.");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError($"Failed to load GLB from {url}.");
+    //    }
+    //}
 
     public static void ParseAndModifyObjFile(string filePath)
     {

@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 
 public class MeshScanner : MonoBehaviour
 {
@@ -13,86 +13,70 @@ public class MeshScanner : MonoBehaviour
     [SerializeField] private MeshExporter meshExporter;
     [SerializeField] private MeshManager meshManager;
     [SerializeField] private TextMesh logText;
-    [SerializeField] private float autoExportInterval = 0.5f; // Every 0.5 seconds
 
     [Header("Server Settings")]
-    [SerializeField] public ServerWebRTC serverWebRTC;
+    [SerializeField] private ServerWebRTC serverWebRTC;
 
     private bool isScanning = false;
-
     private float gazeTimer = 0.0f;
     private GameObject currentTarget = null;
     private GameObject previousTarget = null;
+    private AdvancedLogger logger;
 
-    private List<Vector3> scannedVertices = new List<Vector3>();
-    private List<int> scannedTriangles = new List<int>();
-    private Dictionary<int, int> vertexIndexMap = new Dictionary<int, int>();
-    private HashSet<string> scannedTriangleSet = new HashSet<string>();
-    private Queue<string> uploadQueue = new Queue<string>();
-    private bool isUploading = false;
-    private readonly object scanDataLock = new object();
-    private Queue<GameObject> vertexPool = new Queue<GameObject>();
-
-    private Coroutine autoExportCoroutine;
-
-    private int autoExportCounter = 0;
-
-    private const int MaxVertices = 500; // Maximum number of vertices
-    private const int MaxTriangles = 1000; // Maximum number of triangles
+    private Camera mainCamera;
+    private List<Vector3> worldVertices;
+    private List<int> collectedTriangles;
+    private Ray gazeRay;
+    private RaycastHit hit;
+    private Renderer cachedRenderer;
+    private MaterialPropertyBlock propertyBlock;
+    private float saveTimer = 0.0f;
 
     private void Start()
     {
-        if (isScanning && autoExportCoroutine == null)
-        {
-            autoExportCoroutine = StartCoroutine(AutoExportRoutine());
-        }
+        logger = new AdvancedLogger(Path.Combine(Application.persistentDataPath, "Logs"));
+        SetScanningMode(true);
+        mainCamera = Camera.main;
 
-        SetScanningMode(false);
-        scannedVertices.Capacity = MaxVertices;
-        scannedTriangles.Capacity = MaxTriangles;
+        worldVertices = new List<Vector3>();
+        collectedTriangles = new List<int>();
+        propertyBlock = new MaterialPropertyBlock();
     }
-
-    private float scanCheckInterval = 0.1f; // Scanning every 0.1 seconds
-    private float lastScanCheckTime = 0.0f;
 
     private void Update()
     {
-        if (!isScanning || Time.time - lastScanCheckTime < scanCheckInterval) return;
-        lastScanCheckTime = Time.time;
+        if (!isScanning) return;
 
-        Ray gazeRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        RaycastHit[] hits = Physics.RaycastAll(gazeRay, Mathf.Infinity, detectionLayer);
+        gazeRay.origin = mainCamera.transform.position;
+        gazeRay.direction = mainCamera.transform.forward;
 
-        if (hits.Length > 0)
+        if (Physics.Raycast(gazeRay, out hit, Mathf.Infinity, detectionLayer))
         {
-            // Find the closest hit
-            RaycastHit closestHit = hits[0];
-            foreach (var hit in hits)
-            {
-                if (hit.distance < closestHit.distance)
-                    closestHit = hit;
-            }
-
-            ProcessHit(closestHit);
+            ProcessHit(hit);
         }
         else
         {
-            currentTarget = null;
-            gazeTimer = 0.0f;
+            ResetGazeTimer();
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
         }
+
+        saveTimer += Time.deltaTime;
+        if (saveTimer >= 1.0f)
+        {
+            SaveCollectedData();
+            saveTimer = 0.0f;
+        }
+
+        SendCollectedData();
     }
 
     private void ProcessHit(RaycastHit hit)
     {
         currentTarget = hit.collider.gameObject;
-        MeshFilter meshFilter = currentTarget.GetComponent<MeshFilter>();
-
-        if (meshFilter == null) return;
 
         if (currentTarget != previousTarget)
         {
-            gazeTimer = 0.0f;
+            ResetGazeTimer();
             previousTarget = currentTarget;
         }
 
@@ -100,242 +84,164 @@ public class MeshScanner : MonoBehaviour
 
         if (gazeTimer >= dwellTime)
         {
-            ScanMesh(meshFilter, hit.point);
-            gazeTimer = 0.0f;
+            MeshFilter meshFilter = currentTarget.GetComponent<MeshFilter>();
+
+            if (meshFilter == null)
+            {
+                logger.Log("MeshFilter is null for the current target.");
+                ResetGazeTimer();
+                return;
+            }
+
+            ScanMesh(meshFilter);
+            ResetGazeTimer();
         }
 
         UpdateGazeCursor(hit.point);
     }
 
-    public void SetScanningMode(bool isScanning)
+    private void ResetGazeTimer()
     {
-        this.isScanning = isScanning;
+        gazeTimer = 0.0f;
+        previousTarget = null;
+    }
 
-        if (isScanning)
+    private void ScanMesh(MeshFilter meshFilter)
+    {
+        try
         {
-            if (autoExportCoroutine == null)
+            Mesh mesh = meshFilter.sharedMesh;
+
+            if (mesh == null || mesh.vertexCount == 0 || mesh.triangles.Length == 0)
             {
-                autoExportCoroutine = StartCoroutine(AutoExportRoutine());
+                logger.Log("Mesh has no vertices or triangles!");
+                return;
             }
 
-            if (meshManager != null)
+            Vector3[] vertices = mesh.vertices;
+            int[] indices = mesh.triangles;
+            Transform meshTransform = meshFilter.transform;
+
+            // Transform vertices to world positions
+            worldVertices.Clear();
+            foreach (var vertex in vertices)
+            {
+                worldVertices.Add(meshTransform.TransformPoint(vertex));
+            }
+
+            // Collect triangles
+            collectedTriangles.AddRange(indices);
+
+            // Update mesh color to indicate it has been scanned
+            cachedRenderer = meshFilter.GetComponent<Renderer>();
+            if (cachedRenderer != null)
+            {
+                cachedRenderer.GetPropertyBlock(propertyBlock);
+                propertyBlock.SetColor("_Color", Color.green);
+                cachedRenderer.SetPropertyBlock(propertyBlock);
+            }
+
+            logger.Log("Scanned mesh and collected data.");
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Error scanning mesh: {ex.Message}");
+        }
+    }
+
+    private async void SaveCollectedData()
+    {
+        if (collectedTriangles.Count == 0) return;
+
+        try
+        {
+            string fileName = $"collected_data_{DateTime.Now:yyyyMMdd_HHmmssfff}.obj";
+
+            // Convert indices array to List<int>
+            List<int> indicesList = new List<int>(collectedTriangles);
+
+            // Export and save asynchronously
+            await ExportMeshAsync(worldVertices, indicesList, fileName);
+            logger.Log($"Saved collected data: {fileName}");
+
+            // Clear collected data after saving
+            collectedTriangles.Clear();
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Error saving collected data: {ex.Message}");
+        }
+    }
+
+    private async void SendCollectedData()
+    {
+        if (collectedTriangles.Count == 0) return;
+
+        try
+        {
+            // Convert indices array to List<int>
+            List<int> indicesList = new List<int>(collectedTriangles);
+
+            // Generate OBJ data
+            string objData = meshExporter.GenerateObjData(worldVertices, indicesList);
+
+            // Send OBJ data to server
+            if (serverWebRTC != null)
+            {
+                await serverWebRTC.Send(objData);
+                logger.Log("Mesh data sent to server.");
+            }
+            else
+            {
+                logger.Log("ServerWebRTC reference is not set.");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Error sending collected data: {ex.Message}");
+        }
+    }
+
+    private async Task ExportMeshAsync(List<Vector3> vertices, List<int> triangles, string fileName)
+    {
+        try
+        {
+            // Generate OBJ data
+            string objData = meshExporter.GenerateObjData(vertices, triangles);
+
+            // Save OBJ file locally using async IO
+            string directoryPath = Path.Combine(Application.persistentDataPath, "exported_meshes");
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+            string filePath = Path.Combine(directoryPath, fileName);
+            await File.WriteAllTextAsync(filePath, objData);
+
+            logger.Log($"Exported mesh to file: {filePath}");
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Error exporting mesh: {ex.Message}");
+        }
+    }
+
+    public void SetScanningMode(bool scanning)
+    {
+        isScanning = scanning;
+
+        if (meshManager != null)
+        {
+            if (isScanning)
             {
                 meshManager.HideMesh();
                 meshManager.EnableMeshObserver();
             }
-        }
-        else
-        {
-            if (autoExportCoroutine != null)
-            {
-                StopCoroutine(autoExportCoroutine);
-                autoExportCoroutine = null;
-            }
-
-            scannedVertices.Clear();
-            scannedTriangles.Clear();
-            vertexIndexMap.Clear();
-            scannedTriangleSet.Clear();
-
-            if (meshManager != null)
+            else
             {
                 meshManager.DisableMeshObserver();
             }
         }
-    }
-
-    private void ScanMesh(MeshFilter meshFilter, Vector3 hitPoint)
-    {
-        if (scannedVertices.Count >= MaxVertices || scannedTriangles.Count >= MaxTriangles)
-        {
-            Debug.LogWarning("Reached maximum vertices or triangles limit. Exporting mesh...");
-            ExportScannedMesh();
-            return;
-        }
-
-        Mesh mesh = meshFilter.sharedMesh;
-        Vector3[] vertices = mesh.vertices;
-        int[] indices = mesh.triangles;
-        Transform meshTransform = meshFilter.transform;
-
-        if (vertices.Length == 0 || indices.Length == 0)
-        {
-            Debug.LogError("Mesh has no vertices or triangles!");
-            return;
-        }
-
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            if (vertexIndexMap.ContainsKey(i) || scannedVertices.Count >= MaxVertices)
-                continue;
-
-            Vector3 worldVertex = meshTransform.TransformPoint(vertices[i]);
-            float distance = Vector3.Distance(worldVertex, hitPoint);
-
-            if (distance < 5.0f)
-            {
-                vertexIndexMap[i] = scannedVertices.Count;
-                scannedVertices.Add(vertices[i]);
-                //VisualizeVertex(worldVertex);
-            }
-        }
-
-        for (int i = 0; i < indices.Length; i += 3)
-        {
-            if (scannedTriangles.Count >= MaxTriangles)
-                break;
-
-            int index0 = indices[i];
-            int index1 = indices[i + 1];
-            int index2 = indices[i + 2];
-
-            if (vertexIndexMap.ContainsKey(index0) &&
-                vertexIndexMap.ContainsKey(index1) &&
-                vertexIndexMap.ContainsKey(index2))
-            {
-                int newIndex0 = vertexIndexMap[index0];
-                int newIndex1 = vertexIndexMap[index1];
-                int newIndex2 = vertexIndexMap[index2];
-
-                int minIndex = Mathf.Min(newIndex0, newIndex1, newIndex2);
-                int maxIndex = Mathf.Max(newIndex0, newIndex1, newIndex2);
-                int midIndex = newIndex0 + newIndex1 + newIndex2 - minIndex - maxIndex;
-                string triangleKey = $"{minIndex}_{midIndex}_{maxIndex}";
-
-                if (!scannedTriangleSet.Contains(triangleKey))
-                {
-                    scannedTriangleSet.Add(triangleKey);
-                    scannedTriangles.Add(newIndex0);
-                    scannedTriangles.Add(newIndex1);
-                    scannedTriangles.Add(newIndex2);
-                }
-            }
-        }
-
-        Renderer rend = meshFilter.GetComponent<Renderer>();
-        if (rend != null)
-        {
-            rend.material.color = Color.green;
-        }
-    }
-
-    public void ExportScannedMesh(string customFileName = null)
-    {
-        if (scannedVertices.Count == 0)
-        {
-            Debug.LogError("No vertices scanned for export.");
-            return;
-        }
-
-        List<Vector3> verticesCopy;
-        List<int> trianglesCopy;
-
-        lock (scanDataLock)
-        {
-            verticesCopy = new List<Vector3>(scannedVertices);
-            trianglesCopy = new List<int>(scannedTriangles);
-        }
-
-        string fileName = string.IsNullOrEmpty(customFileName)
-            ? "scanned_mesh.obj"
-            : customFileName;
-
-        Debug.Log($"Exporting to file: {fileName}");
-        logText.text = "Exporting scanned mesh...";
-
-        _ = meshExporter.ExportMeshToObjAsync(verticesCopy, trianglesCopy, fileName);
-
-        EnqueueMeshDataForUpload(verticesCopy, trianglesCopy);
-
-        // Clear scanned data after exporting
-        scannedVertices.Clear();
-        scannedTriangles.Clear();
-        vertexIndexMap.Clear();
-        scannedTriangleSet.Clear();
-    }
-
-    private void EnqueueMeshDataForUpload(List<Vector3> vertices, List<int> triangles)
-    {
-        string objData = meshExporter.GenerateObjData(vertices, triangles);
-        uploadQueue.Enqueue(objData);
-
-        if (!isUploading)
-        {
-            StartCoroutine(ProcessUploadQueue());
-        }
-    }
-
-    private IEnumerator ProcessUploadQueue()
-    {
-        if (isUploading) yield break;
-        isUploading = true;
-
-        while (uploadQueue.Count > 0)
-        {
-            string objData = uploadQueue.Dequeue();
-
-            if (serverWebRTC != null)
-            {
-                bool success = false;
-                while (!success)
-                {
-                    var sendTask = serverWebRTC.Send(objData);
-                    yield return new WaitUntil(() => sendTask.IsCompleted);
-
-                    if (sendTask.Exception == null)
-                    {
-                        Debug.Log("Data successfully sent to server.");
-                        Debug.Log(objData);
-                        success = true;
-                    }
-                    else
-                    {
-                        Debug.LogError($"Failed to send data: {sendTask.Exception.InnerException?.Message}. Retrying...");
-
-                        uploadQueue.Enqueue(objData);
-
-                        if (uploadQueue.Count > 10)
-                        {
-                            Debug.LogError("Too many failed uploads, aborting.");
-                            break;
-                        }
-
-                        yield return new WaitForSeconds(5);
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogError("ServerWebRTC reference is not set in MeshScanner.");
-            }
-
-            yield return null;
-        }
-
-        isUploading = false;
-    }
-
-    private void ExportScannedMeshAuto()
-    {
-        string directoryPath = Path.Combine(Application.persistentDataPath, "exported_meshes");
-        if (!System.IO.Directory.Exists(directoryPath))
-        {
-            System.IO.Directory.CreateDirectory(directoryPath);
-        }
-
-        string fileName = $"{directoryPath}/mesh_{DateTime.Now:yyyyMMdd_HHmmss}_{autoExportCounter++}.obj";
-        ExportScannedMesh(fileName);
-    }
-
-    private IEnumerator AutoExportRoutine()
-    {
-        while (isScanning)
-        {
-            yield return new WaitForSeconds(autoExportInterval);
-            ExportScannedMeshAuto();
-        }
-
-        autoExportCoroutine = null;
     }
 
     private void UpdateGazeCursor(Vector3 position)
@@ -346,48 +252,8 @@ public class MeshScanner : MonoBehaviour
         }
     }
 
-    [Serializable]
-    public class ScannedMeshData
-    {
-        public List<Vector3> vertices;
-        public List<int> triangles;
-
-        public ScannedMeshData(List<Vector3> vertices, List<int> triangles)
-        {
-            this.vertices = vertices;
-            this.triangles = triangles;
-        }
-    }
-
     public bool IsScanning()
     {
         return isScanning;
     }
-
-    //private void VisualizeVertex(Vector3 position)
-    //{
-    //    GameObject sphere;
-    //    if (vertexPool.Count > 0)
-    //    {
-    //        sphere = vertexPool.Dequeue();
-    //    }
-    //    else
-    //    {
-    //        sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-    //        sphere.transform.localScale = Vector3.one * 0.05f;
-    //        sphere.GetComponent<Renderer>().material.color = Color.red;
-    //    }
-
-    //    sphere.transform.position = position;
-    //    sphere.GetComponent<Renderer>().enabled = true;
-    //    StartCoroutine(HideSphere(sphere, 5.0f));
-    //}
-
-    //private IEnumerator HideSphere(GameObject sphere, float delay)
-    //{
-    //    yield return new WaitForSeconds(delay);
-    //    sphere.GetComponent<Renderer>().enabled = false;
-    //    vertexPool.Enqueue(sphere);
-    //}
 }
-

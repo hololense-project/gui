@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class GazeDetector : MonoBehaviour
 {
@@ -20,17 +21,26 @@ public class GazeDetector : MonoBehaviour
     private GameObject previousTarget = null;
     private bool isScanning = false;
     private List<GameObject> scannedObjects = new List<GameObject>();
+    private Camera mainCamera;
+    private Ray gazeRay;
+    private RaycastHit hit;
+
+    private void Start()
+    {
+        mainCamera = Camera.main;
+    }
 
     private void Update()
     {
         if (!isScanning) return;
 
-        Ray gazeRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        gazeRay.origin = mainCamera.transform.position;
+        gazeRay.direction = mainCamera.transform.forward;
 
-        if (Physics.Raycast(gazeRay, out RaycastHit hit, Mathf.Infinity, detectionLayer))
+        if (Physics.Raycast(gazeRay, out hit, Mathf.Infinity, detectionLayer))
         {
             currentTarget = hit.collider.gameObject;
-            float distance = Vector3.Distance(Camera.main.transform.position, currentTarget.transform.position);
+            float distance = Vector3.Distance(mainCamera.transform.position, currentTarget.transform.position);
 
             if (distance >= minDistance && distance <= maxDistance)
             {
@@ -56,7 +66,7 @@ public class GazeDetector : MonoBehaviour
             currentTarget = null;
             gazeTimer = 0.0f;
 
-            // Przesuń kursor "w nieskończoność"
+            // Move cursor to "infinity"
             UpdateGazeCursor(gazeRay.origin + gazeRay.direction * 10);
         }
     }
@@ -77,7 +87,7 @@ public class GazeDetector : MonoBehaviour
             Debug.Log($"Scanned object: {target.name}");
             scannedObjects.Add(target);
 
-            // Zmiana koloru obiektu, aby zaznaczyć, że został zeskanowany
+            // Change object color to indicate it has been scanned
             Renderer rend = target.GetComponent<Renderer>();
             if (rend != null)
             {
@@ -94,7 +104,7 @@ public class GazeDetector : MonoBehaviour
             return;
         }
 
-        // Dodawanie do kolejki w QueueProcessor
+        // Add to queue in QueueProcessor
         foreach (var obj in scannedObjects)
         {
             var meshFilter = obj.GetComponent<MeshFilter>();
@@ -104,10 +114,10 @@ public class GazeDetector : MonoBehaviour
             }
         }
 
-        // Asynchroniczne przetwarzanie kolejki
+        // Asynchronously process the queue
         await queueProcessor.ProcessQueueAsync();
 
-        // Wyczyść listę po eksporcie
+        // Clear the list after export
         scannedObjects.Clear();
     }
 
@@ -119,3 +129,4 @@ public class GazeDetector : MonoBehaviour
         }
     }
 }
+

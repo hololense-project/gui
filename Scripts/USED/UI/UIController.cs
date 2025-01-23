@@ -29,12 +29,16 @@ public class UIController : MonoBehaviour
     [SerializeField] private GameObject meshButtonPrefab;
 
     private string serverIPAddress = "";
+    private AdvancedLogger meshLogger;
 
     private void Start()
     {
-        // Ustaw katalog logów
-        string logDirectoryPath = Path.Combine(Application.persistentDataPath, "Keboard_logs");
+        // Set up log directories
+        string logDirectoryPath = Path.Combine(Application.persistentDataPath, "Keyboard_logs");
         _logger = new AdvancedLogger(logDirectoryPath);
+
+        string meshLogDirectoryPath = Path.Combine(Application.persistentDataPath, "Mesh_logs");
+        meshLogger = new AdvancedLogger(meshLogDirectoryPath);
 
         if (meshScanner == null)
         {
@@ -115,7 +119,15 @@ public class UIController : MonoBehaviour
         }
 
         // Get all mesh files from the default path
-        string[] meshFiles = Directory.GetFiles(Application.persistentDataPath, "*.obj");
+        string[] objFiles = Directory.GetFiles(Application.persistentDataPath, "*.obj");
+        string[] glbFiles = Directory.GetFiles(Application.persistentDataPath, "*.glb");
+        string[] gltfFiles = Directory.GetFiles(Application.persistentDataPath, "*.gltf");
+
+        // Combine all mesh files into one array with GLB files first
+        string[] meshFiles = new string[glbFiles.Length + gltfFiles.Length + objFiles.Length];
+        glbFiles.CopyTo(meshFiles, 0);
+        gltfFiles.CopyTo(meshFiles, glbFiles.Length);
+        objFiles.CopyTo(meshFiles, glbFiles.Length + gltfFiles.Length);
 
         // Sort files by modification date
         Array.Sort(meshFiles, (x, y) => File.GetLastWriteTime(y).CompareTo(File.GetLastWriteTime(x)));
@@ -127,10 +139,11 @@ public class UIController : MonoBehaviour
         }
 
         // Log the number of mesh files found
-        Debug.Log($"Found {meshFiles.Length} .obj files in the directory.");
+        Debug.Log($"Found {meshFiles.Length} mesh files in the directory.");
+        meshLogger.Log($"Found {meshFiles.Length} mesh files in the directory.").FlushLogs();
 
         // Define grid layout
-        Vector3 startPosition = buttonCollection.localPosition - new Vector3(0.016f, -0.016f, 0f); // St
+        Vector3 startPosition = buttonCollection.localPosition - new Vector3(0.016f, -0.016f, 0f); // Start position
         Vector3 offset = new Vector3(0.02f, -0.02f, 0f); // Offset for each button in the grid
         float padding = 0.012f; // Padding to prevent overlapping
 
@@ -140,6 +153,7 @@ public class UIController : MonoBehaviour
             string fileName = Path.GetFileNameWithoutExtension(filePath);
             // Log each mesh file name
             Debug.Log($"Found mesh file: {fileName}");
+            meshLogger.Log($"Found mesh file: {fileName}").FlushLogs();
 
             // Create a button for each mesh
             GameObject buttonObject = Instantiate(meshButtonPrefab, buttonCollection);
@@ -185,25 +199,38 @@ public class UIController : MonoBehaviour
 
     private void LoadMesh(string meshPath)
     {
-        // Modify the OBJ file if necessary
-        MeshLoader.ParseAndModifyObjFile(meshPath);
-
-        // Load the mesh from file
-        Mesh mesh = new Mesh();
-        MeshLoader.LoadOBJ(meshPath, ref mesh);
-
-        // Create a new GameObject to hold the mesh
+        string extension = Path.GetExtension(meshPath).ToLower();
         GameObject meshObject = new GameObject("LoadedMesh");
-        MeshFilter meshFilter = meshObject.AddComponent<MeshFilter>();
-        meshFilter.mesh = mesh;
+
+        if (extension == ".obj")
+        {
+            // Modify the OBJ file if necessary
+            MeshLoader.ParseAndModifyObjFile(meshPath);
+
+            // Load the mesh from file
+            Mesh mesh = new Mesh();
+            MeshLoader.LoadOBJ(meshPath, ref mesh);
+
+            MeshFilter meshFilter = meshObject.AddComponent<MeshFilter>();
+            meshFilter.mesh = mesh;
+        }
+        else if (extension == ".glb")
+        {
+           // MeshLoader.LoadGLB(meshPath, meshObject.transform);
+        }
+        else if (extension == ".gltf")
+        {
+            //MeshLoader.LoadGLTF(meshPath, meshObject.transform);
+        }
+
         MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();
         // Assign a default material to the meshRenderer
         meshRenderer.material = new Material(Shader.Find("Standard"));
 
         // Add a BoxCollider to the mesh
         BoxCollider boxCollider = meshObject.AddComponent<BoxCollider>();
-        boxCollider.center = mesh.bounds.center;
-        boxCollider.size = mesh.bounds.size;
+        boxCollider.center = meshObject.GetComponent<MeshFilter>().mesh.bounds.center;
+        boxCollider.size = meshObject.GetComponent<MeshFilter>().mesh.bounds.size;
 
         // Make the object grabbable and scalable
         meshObject.AddComponent<NearInteractionGrabbable>();
@@ -224,6 +251,9 @@ public class UIController : MonoBehaviour
             meshObject.transform.position = Vector3.zero;
         }
 
+        // Log the loaded mesh
+        meshLogger.Log($"Loaded mesh: {meshPath}").FlushLogs();
+
         // Hide the mesh collection panel
         if (meshCollectionPanel != null)
         {
@@ -231,3 +261,4 @@ public class UIController : MonoBehaviour
         }
     }
 }
+

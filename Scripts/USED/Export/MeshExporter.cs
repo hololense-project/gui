@@ -70,7 +70,7 @@ public class MeshExporter : MonoBehaviour
             sb.AppendLine($"f {triangles[i] + 1} {triangles[i + 1] + 1} {triangles[i + 2] + 1}");
         }
 
-        sb.AppendLine("# Mesh sent");
+        sb.AppendLine("#Mesh sent");
 
         return sb.ToString();
     }
