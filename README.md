@@ -1,7 +1,7 @@
 # gui
 Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the POV of hololense
 
-## Used plugins:
+## Used plugins
 - MRTK 2
 - [WebRTC plugin](https://github.com/SouprP/unity-webrtc-hololens) with dependencies - works only in Unity for now
 - Nuget:
@@ -10,9 +10,9 @@ Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the
     - System.Net.Http
 - [Unity glTFast](https://docs.unity3d.com/Packages/com.unity.cloud.gltfast@6.10/manual/index.html)
 
-## Features:
+## Features
 
-### Unity editor:
+### Unity editor
 - [x] Head, hand joints and eyes data collection
     - [x] writing to a file every 10 seconds
     - [x] sending through WebRTC
@@ -44,6 +44,6 @@ Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the
 - [ ] Keyboard for setting up server IP address (need to be hardcoded)
 
 ## Known bugs
-- buttons in model for import chooser sometimes are rendered off place
+- buttons in model chooser sometimes are rendered off place
 - the keyboard doesn't work - it can be shown but input said bye
 
