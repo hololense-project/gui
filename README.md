@@ -4,7 +4,11 @@ Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the
 ## Used plugins:
 - MRTK 2
 - [WebRTC plugin](https://github.com/SouprP/unity-webrtc-hololens) with dependencies - works only in Unity for now
-- Nuget: HTML and JSON parsers, HTTP requests
+- Nuget:
+    - HtmlAgilityPack
+    - Newtonsoft.Json
+    - System.Net.Http
+- [Unity glTFast](https://docs.unity3d.com/Packages/com.unity.cloud.gltfast@6.10/manual/index.html)
 
 ## Features:
 
