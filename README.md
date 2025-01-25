@@ -17,7 +17,7 @@ Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the
     - [x] writing to a file every 10 seconds
     - [x] sending through WebRTC
     - [x] sending via HTTP POST request - works very slowly
-- [x] Collecting mesh from what the hololense sees every frame:
+- [x] Collecting mesh from what the hololense sees every frame
     - [x] writing to a file every frame
     - [x] sending through WebRTC
     - [x] sending via HTTP POST request - works very slowly
@@ -33,7 +33,7 @@ Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the
     - [x] writing to a file every 10 seconds
     - [ ] sending through WebRTC
     - [x] sending via HTTP POST request - works very slowly
-- [x] Collecting mesh from what the hololense sees every frame:
+- [x] Collecting mesh from what the hololense sees every frame
     - [x] writing to a file every frame
     - [ ] sending through WebRTC
     - [x] sending via HTTP POST request - works very slowly
