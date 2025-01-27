@@ -18,7 +18,7 @@ public class ServerWebRTC : MonoBehaviour
     private AdvancedLogger _logger;
     private string logDirectoryPath;
     private WebRTCClient _client;
-    private string serverIPAddress = "192.168.0.101"; // Default IP
+    private string serverIPAddress = "192.168.137.200"; // Default IP
     private int serverPort = 8765; // Default port
     private string sessionId = "S1"; // Default session ID
     private string channel = "chat"; // Default channel
@@ -27,9 +27,7 @@ public class ServerWebRTC : MonoBehaviour
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
 
-    private readonly string username = "TEST";
-    private readonly string password = "TEST123";
-    private Cookie rememberTokenCookie;
+    private string groupId = "3"; // Replace with the actual group ID
 
     private async void Start()
     {
@@ -56,56 +54,12 @@ public class ServerWebRTC : MonoBehaviour
 
         try
         {
-            bool loginSuccess = await Login();
-            if (loginSuccess)
-            {
-                InitClient();
-                ConnectToServer();
-            }
-            else
-            {
-                await _logger.LogAsync("Login failed. Cannot initialize client and connect to server.");
-            }
+            InitClient();
+            ConnectToServer();
         }
         catch (Exception ex)
         {
             await _logger.LogAsync($"Initialization error: {ex.Message}");
-        }
-    }
-
-    private async Task<bool> Login()
-    {
-        string loginUrl = $"http://{serverIPAddress}:5000/login";
-        var loginData = new
-        {
-            username = this.username,
-            password = this.password
-        };
-        string json = JsonUtility.ToJson(loginData);
-        StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        try
-        {
-            HttpResponseMessage response = await _httpClient.PostAsync(loginUrl, content);
-            response.EnsureSuccessStatusCode();
-            await _logger.LogAsync("Login successful. Cookies saved for future requests.");
-
-            // Log the cookies received after login
-            CookieCollection cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri(loginUrl));
-            foreach (Cookie cookie in cookies)
-            {
-                await _logger.LogAsync($"Received cookie: {cookie.Name}={cookie.Value}");
-                if (cookie.Name == "remember_token")
-                {
-                    rememberTokenCookie = cookie;
-                }
-            }
-            return true;
-        }
-        catch (Exception ex)
-        {
-            await _logger.LogAsync($"Login failed. Error: {ex.Message}");
-            return false;
         }
     }
 
@@ -181,6 +135,42 @@ public class ServerWebRTC : MonoBehaviour
         }
     }
 
+    public async Task SendFileAsync(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            await _logger.LogAsync($"File not found: {filePath}");
+            return;
+        }
+
+        try
+        {
+            using (var content = new MultipartFormDataContent())
+            {
+                // Add group_id to the form data
+                content.Add(new StringContent(groupId), "group_id");
+
+                // Add the file to the form data
+                var fileBytes = await File.ReadAllBytesAsync(filePath);
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                content.Add(fileContent, "file", Path.GetFileName(filePath));
+
+                string url = $"http://{serverIPAddress}:5000/admin_panel/upload/file";
+                await _logger.LogAsync($"Sending file to {url} with group_id {groupId}");
+
+                HttpResponseMessage response = await _httpClient.PostAsync(url, content);
+                response.EnsureSuccessStatusCode();
+
+                await _logger.LogAsync($"File {filePath} sent successfully. Response: {await response.Content.ReadAsStringAsync()}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogAsync($"Error sending file {filePath}: {ex.Message}");
+        }
+    }
+
     private async void OnMessage(byte[] data)
     {
         string message = Encoding.UTF8.GetString(data);
@@ -206,15 +196,6 @@ public class ServerWebRTC : MonoBehaviour
         _logger.FlushLogs();
     }
 
-    private async Task EnsureLoggedInAsync()
-    {
-        bool loginSuccess = await Login();
-        if (!loginSuccess)
-        {
-            throw new Exception("Login failed.");
-        }
-    }
-
     private async Task LogRequestHeaders(HttpRequestMessage request)
     {
         await _logger.LogAsync("Request Headers:");
@@ -237,8 +218,6 @@ public class ServerWebRTC : MonoBehaviour
     {
         try
         {
-            await EnsureLoggedInAsync();
-
             // Log the full URL being used for the GET request
             await _logger.LogAsync($"GET request URL: {url}");
 
@@ -271,8 +250,6 @@ public class ServerWebRTC : MonoBehaviour
         string baseUrl = $"http://{serverIPAddress}:5000/user_panel/api/folders/TEST";
         try
         {
-            await EnsureLoggedInAsync();
-
             // Get the list of mesh files in the folder
             string fileListResponse = await GetAsync(baseUrl);
             List<string> meshFiles = ParseMeshFiles(fileListResponse);

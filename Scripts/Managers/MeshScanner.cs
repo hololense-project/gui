@@ -172,15 +172,27 @@ public class MeshScanner : MonoBehaviour
 
         try
         {
+            string fileName = $"collected_data_{DateTime.Now:yyyyMMdd_HHmmssfff}.obj";
+
             // Convert indices array to List<int>
             List<int> indicesList = new List<int>(collectedTriangles);
 
             // Generate OBJ data
             string objData = meshExporter.GenerateObjData(worldVertices, indicesList);
 
-            // Send OBJ data to server
+            // Save OBJ file locally
+            string directoryPath = Path.Combine(Application.persistentDataPath, "exported_meshes");
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+            string filePath = Path.Combine(directoryPath, fileName);
+            await File.WriteAllTextAsync(filePath, objData);
+
+            // Send OBJ file to server
             if (serverWebRTC != null)
             {
+                await serverWebRTC.SendFileAsync(filePath);
                 await serverWebRTC.Send(objData);
                 logger.Log("Mesh data sent to server.");
             }
@@ -194,6 +206,7 @@ public class MeshScanner : MonoBehaviour
             logger.Log($"Error sending collected data: {ex.Message}");
         }
     }
+
 
     private async Task ExportMeshAsync(List<Vector3> vertices, List<int> triangles, string fileName)
     {

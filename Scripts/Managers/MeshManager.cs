@@ -28,9 +28,9 @@ public class MeshManager : MonoBehaviour
     private void ConfigureMeshObserver()
     {
         // Włączanie i ustawianie parametrów skanowania
-        meshObserver.DisplayOption = SpatialAwarenessMeshDisplayOptions.Visible;
-        meshObserver.LevelOfDetail = SpatialAwarenessMeshLevelOfDetail.Coarse; // Można zmienić na Fine dla lepszej jakości
-        meshObserver.UpdateInterval = 1.0f; // Skanowanie co 1 sekundę
+        meshObserver.DisplayOption = SpatialAwarenessMeshDisplayOptions.None;
+        meshObserver.LevelOfDetail = SpatialAwarenessMeshLevelOfDetail.Fine; // Można zmienić na Fine dla lepszej jakości
+        meshObserver.UpdateInterval = 0.5f; // Skanowanie co 1 sekundę
     }
 
     public void HideMesh()

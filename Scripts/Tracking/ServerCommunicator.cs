@@ -104,7 +104,7 @@ public class ServerCommunicator : MonoBehaviour
         }
     }
 
-    private void SaveBufferedDataToFile(string fileName)
+    private async void SaveBufferedDataToFile(string fileName)
     {
         string filePath = Path.Combine(Application.persistentDataPath, fileName);
         bool fileExists = File.Exists(filePath);
@@ -153,7 +153,18 @@ public class ServerCommunicator : MonoBehaviour
             }
         }
         Debug.Log($"Aggregated data saved to {filePath}");
+
+        // Send CSV file to server
+        if (serverWebRTC != null)
+        {
+            await serverWebRTC.SendFileAsync(filePath);
+        }
+        else
+        {
+            Debug.LogError("ServerWebRTC reference is not set.");
+        }
     }
+
 
     private async Task SendDataAsync(string data)
     {
