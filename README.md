@@ -1,6 +1,11 @@
 # gui
 Mircosoft hololense GUI app made in Unity that aims to collect the mesh from the POV of hololense
 
+## Usage
+Copy the _Scenes_ and _Scripps_ into your unity project _Assets_ directory. Launch it and connect everything as in the Inspector instruction.
+
+To build the app follow the appx instructions and then deploy it onto hololense in System -> Apps section at its homepage. 
+
 ## Used plugins
 - MRTK 2
 - [WebRTC plugin](https://github.com/SouprP/unity-webrtc-hololens) with dependencies - works only in Unity for now
