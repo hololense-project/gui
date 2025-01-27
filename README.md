@@ -45,7 +45,7 @@ To build the app follow the appx instructions and then deploy it onto hololense 
 - [x] Meshes initializaiton on the scene
     - [x] Obtaining files from the server via GET request
     - [x] OBJ files (only those smaller)
-    - [ ] GLB and GLTF - they render only on one ocular, without shaders or textures (they're pink XD) and are manipulable only in parts (cannot resize and grab the whole model)
+    - [ ] GLB and GLTF - they render on one ocular only, without shaders or textures (they're pink XD) and are manipulable only in parts (cannot resize and grab the whole model)
 - [ ] Keyboard for setting up server IP address (need to be hardcoded)
 
 ## Known bugs
